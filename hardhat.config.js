@@ -21,10 +21,14 @@ module.exports = {
   paths: {
     artifacts: './src/artifacts',
   },
+  defaultNetwork: "hardhat",
   networks: {
-    matic: {
-      url: "https://polygon-mumbai.g.alchemy.com/v2/YOUR_APP",
-      accounts: ["MATIC_PRIVATE_KEY"]
-    }
+    //matic: {
+    //  url: "https://polygon-mumbai.g.alchemy.com/v2/YOUR_APP",
+    //  accounts: ["MATIC_PRIVATE_KEY"]
+    //},
+    hardhat: {
+      chainId: 1337
+    },
   },
 };
