@@ -7,10 +7,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "bs58": "^5.0.0",
     "buffer": "^6.0.3",
     "ipfs-http-client": "^59.0.0",
     "react": "^17.0.2",
+    "react-bootstrap": "^2.7.0",
     "react-dom": "^17.0.2",
+    "react-router-dom": "^6.6.1",
+    "react-transition-group": "^4.4.5",
     "write-json-file": "^5.0.0"
   },
   "devDependencies": {

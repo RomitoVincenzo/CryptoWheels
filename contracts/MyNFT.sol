@@ -12,14 +12,15 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     Counters.Counter private _tokenIdCounter;
     address payable contractOwner;
 
-    mapping(uint256 => address) private idToOwner;
+    mapping(uint256 => address) public idToOwner;
+    mapping(address => bytes32) public ownerToCar;
 
     /*event MarketItemCreated (
       uint256 indexed tokenId,
       address owner
     );*/
 
-    constructor() ERC721("CryptoWheels", "CW") {
+        constructor() ERC721("CryptoWheels", "CW") {
         contractOwner = payable(msg.sender);
     }
 
@@ -43,6 +44,18 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     {
         super._burn(tokenId);
     }
+
+    function getCarCID(address addr) 
+        public 
+        view 
+        returns (bytes32) {
+        return ownerToCar[addr];
+    } 
+
+    function setCarCID(address addr, bytes32 carCID) 
+        public {
+        ownerToCar[addr]=carCID;
+    } 
 
     function tokenURI(uint256 tokenId)
         public
