@@ -21,7 +21,13 @@ describe("MyNFT", function () {
     balance = await cryptowheels.balanceOf(recipient)
     expect(balance).to.equal(1);
 
-    expect(await cryptowheels.isContentOwned(metadataURI)).to.equal(true);
-    const newlyMintedToken2 = await cryptowheels.payToMint(recipient, 'foo', { value: ethers.utils.parseEther('0.05') });
+    //expect(await cryptowheels.isContentOwned(metadataURI)).to.equal(true);
+    //const newlyMintedToken2 = await cryptowheels.payToMint(recipient, 'foo', { value: ethers.utils.parseEther('0.05') });
+
+    console.log("TOKEN ID")
+    const getTokenID = await cryptowheels.getNextID() 
+    //await getTokenID.wait();
+    console.log(getTokenID.toNumber());
+
   });
 });
