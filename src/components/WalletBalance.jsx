@@ -11,17 +11,19 @@ const contract = new ethers.Contract(contractAddress, CryptoWheels.abi, signer);
 
 function WalletBalance() {
 
-    const connection = contract.connect(signer);
+    //const connection = contract.connect(signer);
     // address of current user
-    const account = connection.address;
+    //const address = signer.getAddress();
 
     const [balance, setBalance] = useState();
+    const [account, setAccount] = useState();
 
     const getBalance = async () => {
         const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const balance = await provider.getBalance(account);
         setBalance(ethers.utils.formatEther(balance));
+        setAccount(account)
     };
   
     return (

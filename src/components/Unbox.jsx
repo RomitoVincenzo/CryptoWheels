@@ -52,11 +52,12 @@ function NFTMint() {
 
     try {
       // connection to the contract
-      const connection = contract.connect(signer);
+      //const connection = contract.connect(signer);
 
       // address of current user
-      const addr = connection.address;
-
+      //const addr = connection.address;
+      const requestAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const addr = requestAccounts[0];  
       // load and parse the template json of the nft 
       const loadedData = JSON.stringify(data);
       const jsonObject = JSON.parse(loadedData);
@@ -66,7 +67,7 @@ function NFTMint() {
       const date = `${current.getDate()}-${current.getMonth() + 1}-${current.getFullYear()}`;
       jsonObject.minter = addr
       jsonObject.minting_date = date.toString();
-      let nextID = await contract.getNextID()
+      let nextID = await contract.getNextItemID()
       jsonObject.id = nextID.toNumber();
 
       // upload of the json to ipfs and get of the hash
