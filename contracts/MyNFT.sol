@@ -10,7 +10,7 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     using Counters for Counters.Counter;
 
     Counters.Counter private _itemIdCounter;
-    Counters.Counter private _carIdCounter;
+    //Counters.Counter private _carIdCounter;
     address payable contractOwner;
 
     mapping(uint256 => address) public itemToOwner;
@@ -47,31 +47,23 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         super._burn(tokenId);
     }
 
-    function getCarCID(uint256 carID) 
-        public 
-        view 
-        returns (bytes32) {
+    function getCarCID(uint256 carID) public view returns (bytes32) {
         return carToCID[carID];
-    } 
+    }
 
-    function getCarID(address addr) 
-        public 
-        view 
-        returns (uint256) {
+    function getCarID(address addr) public view returns (uint256) {
         return ownerToCar[addr];
-    } 
+    }
 
-    function setCarCID(uint256 carID, bytes32 carCID) 
-        public {
+    function setCarCID(uint256 carID, bytes32 carCID) public {
         require(msg.sender == contractOwner, "You cannot call this function!");
-        carToCID[carID]=carCID;
-    } 
+        carToCID[carID] = carCID;
+    }
 
-    function setCarID(address addr, uint256 carID) 
-        public {
+    function setCarID(address addr, uint256 carID) public {
         require(msg.sender == contractOwner, "You cannot call this function!");
-        ownerToCar[addr]=carID;
-    } 
+        ownerToCar[addr] = carID;
+    }
 
     function tokenURI(uint256 tokenId)
         public
@@ -82,19 +74,16 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         return super.tokenURI(tokenId);
     }
 
-    function getNextItemID() 
-        public 
-        view 
-        returns (uint256) {
+    function getNextItemID() public view returns (uint256) {
         return _itemIdCounter.current() + 1;
-    } 
+    }
 
-    function getNextCarID() 
+    /*function getNextCarID() 
         public 
         view 
         returns (uint256) {
         return _carIdCounter.current() + 1;
-    } 
+    } */
 
     function payToMint(
         address recipient,
@@ -119,15 +108,15 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     ) public payable returns (uint256) {
         require(msg.value >= 0.05 ether, "Need to pay up!");
 
-        uint256 newCarId = _carIdCounter.current();
-        _carIdCounter.increment();
+        uint256 newItemId = _itemIdCounter.current();
+        _itemIdCounter.increment();
 
-        _mint(recipient, newCarId);
-        _setTokenURI(newCarId, stockCarMetadataURI);
-        ownerToCar[recipient]=newCarId;
-        carToCID[newCarId]=stockCarMetadataURIb32;
+        _mint(recipient, newItemId);
+        _setTokenURI(newItemId, stockCarMetadataURI);
+        ownerToCar[recipient] = newItemId;
+        carToCID[newItemId] = stockCarMetadataURIb32;
 
-        return newCarId;
+        return newItemId;
     }
 
     function fetchMyNFTs(address adr) public view returns (uint256[] memory) {

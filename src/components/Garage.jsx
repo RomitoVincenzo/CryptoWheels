@@ -40,117 +40,117 @@ const authorization = "Basic " + btoa(projectId + ":" + projectSecret);
 const ipfs = create({ host: 'ipfs.infura.io', port: 5001, protocol: 'https', headers: { authorization } });
 
 function hashToBytes32(hash) {
-    const result = ethers.utils
+  const result = ethers.utils
     .hexlify(
-        ethers.utils.base58
-            .decode(hash)
-            .slice(2)
+      ethers.utils.base58
+        .decode(hash)
+        .slice(2)
     );
-    return result;
-  }
-
-function convertBytes32ToBytes58(bytes32) {
-    const result = ethers.utils.base58.encode(
-        Buffer.from("1220" + bytes32.slice(2), "hex")
-    );
-    return result;
+  return result;
 }
 
-function isCarMinted(account) { 
-    let carID = contract.getCarID(account);
-    let carCIDb32 = contract.getCarCID(carID);
-    console.log(carCIDb32);
-    
-    if (carCIDb32 == 0) {
-        return false;
-    } 
-    else {
-        return true;
-    }
+function convertBytes32ToBytes58(bytes32) {
+  const result = ethers.utils.base58.encode(
+    Buffer.from("1220" + bytes32.slice(2), "hex")
+  );
+  return result;
+}
+
+function isCarMinted(account) {
+  let carID = contract.getCarID(account);
+  let carCIDb32 = contract.getCarCID(carID);
+  console.log(carCIDb32);
+
+  if (carCIDb32 == 0) {
+    return false;
+  }
+  else {
+    return true;
+  }
 }
 
 function Garage() {
 
-  
+
   const [imageCID, setImageCID] = useState();
   let carMintedBool = false;
-    
+
   const myCar = async () => {
 
     const requestAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const account = requestAccounts[0];  
+    const account = requestAccounts[0];
     console.log(account);
-    
+
     let carID = await contract.getCarID(account);
     let carCIDb32 = await contract.getCarCID(carID);
     console.log(carCIDb32);
-    
-    carMintedBool =  isCarMinted(account);
+
+    carMintedBool = isCarMinted(account);
     console.log(carMintedBool);
 
     if (carCIDb32 == 0) {
-        console.log("IF");
+      console.log("IF");
 
-        console.log(carMintedBool);
-        const loadedData = JSON.stringify(data);
-        const jsonObject = JSON.parse(loadedData);
-        jsonObject.owner = account;
-        let nextID = await contract.getNextCarID()
-        jsonObject.id = nextID.toNumber();
-        const current = new Date();
-        const date = `${current.getDate()}-${current.getMonth() + 1}-${current.getFullYear()}`;
-        jsonObject.minting_date = date.toString();
-        // upload of the json to ipfs and get of the hash
-        let metadataURICar;
-        await ipfs.add(Buffer.from(JSON.stringify(jsonObject))).then((response) => {
-          //console.log(response.path); // Stampa l'hash del file caricato su IPFS
-          metadataURICar = response.path;
-          console.log(metadataURICar);
-        });
-        
-        let metadataURICar_b32 = hashToBytes32(metadataURICar);
+      console.log(carMintedBool);
+      const loadedData = JSON.stringify(data);
+      const jsonObject = JSON.parse(loadedData);
+      jsonObject.owner = account;
+      let nextID = await contract.getNextItemID()
+      jsonObject.id = nextID.toNumber();
+      const current = new Date();
+      const date = `${current.getDate()}-${current.getMonth() + 1}-${current.getFullYear()}`;
+      jsonObject.minting_date = date.toString();
+      // upload of the json to ipfs and get of the hash
+      let metadataURICar;
+      await ipfs.add(Buffer.from(JSON.stringify(jsonObject))).then((response) => {
+        //console.log(response.path); // Stampa l'hash del file caricato su IPFS
+        metadataURICar = response.path;
+        console.log(metadataURICar);
+      });
 
-        // DA METTERE IN FUNZIONE ESTERNA 
+      let metadataURICar_b32 = hashToBytes32(metadataURICar);
 
-        const result = await contract.payToMintCar(account, metadataURICar, metadataURICar_b32, {
-            value: ethers.utils.parseEther('0.05'),
-          });
-        await result.wait();
+      // DA METTERE IN FUNZIONE ESTERNA 
 
-        carMintedBool =  isCarMinted(account);
-        console.log(carMintedBool);
-        
+      const result = await contract.payToMintCar(account, metadataURICar, metadataURICar_b32, {
+        value: ethers.utils.parseEther('0.05'),
+      });
+      await result.wait();
+
+      carMintedBool = isCarMinted(account);
+      console.log(carMintedBool);
+
     } else {
 
-        let carCID = convertBytes32ToBytes58(carCIDb32);
-        let metadataURICar = ipfs.cat(carCID);
+      let carCID = convertBytes32ToBytes58(carCIDb32);
+      let metadataURICar = ipfs.cat(carCID);
 
-        //prendiamo il CID dal car.json
-        const decoder = new TextDecoder()
-        let data = ''
-        for await (const chunk of metadataURICar) {
-          // chunks of data are returned as a Uint8Array, convert it back to a string
-          data += decoder.decode(chunk, { stream: true })
-        }
+      //prendiamo il CID dal car.json
+      const decoder = new TextDecoder()
+      let data = ''
+      for await (const chunk of metadataURICar) {
+        // chunks of data are returned as a Uint8Array, convert it back to a string
+        data += decoder.decode(chunk, { stream: true })
+      }
 
-        const jsonObject = JSON.parse(data); 
-        console.log(jsonObject)
-        let carImageCID = jsonObject.ImageCID;
-        console.log(carImageCID);
-        setImageCID(carImageCID);
+      const jsonObject = JSON.parse(data);
+      console.log(jsonObject)
+      let carImageCID = jsonObject.ImageCID;
+      console.log(carImageCID);
+      setImageCID(carImageCID);
 
     }
 
     //const mintCar = async (addr, stockCarMetadataURI, stockCarMetadataURIb32) => {
-//
+    //
     //    const providerUser = new ethers.providers.Web3Provider(window.ethereum);
     //    // get the end user
     //    const signerUser = providerUser.getSigner();
     //    // get the smart contract
     //    const contractUser = new ethers.Contract(contractAddress, CryptoWheels.abi, signerUser);
-//
+    //
     //    await contract.payToMintCar(addr, stockCarMetadataURI, stockCarMetadataURIb32);
-//
+    //
     //}
 
   }
@@ -167,7 +167,7 @@ function Garage() {
       )}
     </div>
   );
-  
+
 }
 
 export default Garage;

@@ -57,7 +57,7 @@ function NFTMint() {
       // address of current user
       //const addr = connection.address;
       const requestAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const addr = requestAccounts[0];  
+      const addr = requestAccounts[0];
       // load and parse the template json of the nft 
       const loadedData = JSON.stringify(data);
       const jsonObject = JSON.parse(loadedData);
@@ -76,13 +76,12 @@ function NFTMint() {
         //console.log(response.path); // Stampa l'hash del file caricato su IPFS
         metadataURI = response.path;
       });
-
       const result = await contract.payToMint(addr, metadataURI, {
         value: ethers.utils.parseEther('0.05'),
       });
 
       await result.wait();
-
+      console.log(jsonObject)
       //DA RIMUOVERE E INSERIRE IN MYNFTS.JSX
       const newnft = contract.fetchMyNFTs(addr)
       console.log(newnft)
