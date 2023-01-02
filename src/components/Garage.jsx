@@ -56,24 +56,40 @@ function convertBytes32ToBytes58(bytes32) {
   return result;
 }
 
-function isCarMinted(account) {
-  let carID = contract.getCarID(account);
-  let carCIDb32 = contract.getCarCID(carID);
-  console.log(carCIDb32);
-
+async function isCarMinted(account) { 
+  let carID = await contract.getCarID(account);
+  let carCIDb32 = await contract.getCarCID(carID);
   if (carCIDb32 == 0) {
-    return false;
-  }
+      return false;
+  } 
   else {
-    return true;
+      return true;
   }
 }
 
 function Garage() {
 
-
   const [imageCID, setImageCID] = useState();
-  let carMintedBool = false;
+  const [minted, setMinted] = useState(false);
+
+  // Effect necessario per far si che la pagina sia aggiornata quando la macchina viene mintata (fine if) 
+  useEffect(() => {
+    async function checkMinted() {
+      const requestAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const account = requestAccounts[0];
+      const isMinted = await isCarMinted(account);
+      setMinted(isMinted);
+    }
+    checkMinted();
+  }, [minted]);
+  
+  // Effetto necessario per far si che se la macchina è stata mintata venga comunque lanciata la funzione myCar 
+  // (nel caso in cui la macchina non è mintata, myCar viene chiamata con il click del bottone)
+  useEffect(() => {
+    if (minted) {
+      myCar();
+    }
+  }, [minted]);
 
   const myCar = async () => {
 
@@ -83,15 +99,10 @@ function Garage() {
 
     let carID = await contract.getCarID(account);
     let carCIDb32 = await contract.getCarCID(carID);
-    console.log(carCIDb32);
-
-    carMintedBool = isCarMinted(account);
-    console.log(carMintedBool);
 
     if (carCIDb32 == 0) {
-      console.log("IF");
 
-      console.log(carMintedBool);
+      console.log("IF");
       const loadedData = JSON.stringify(data);
       const jsonObject = JSON.parse(loadedData);
       jsonObject.owner = account;
@@ -110,15 +121,13 @@ function Garage() {
 
       let metadataURICar_b32 = hashToBytes32(metadataURICar);
 
-      // DA METTERE IN FUNZIONE ESTERNA 
-
       const result = await contract.payToMintCar(account, metadataURICar, metadataURICar_b32, {
         value: ethers.utils.parseEther('0.05'),
       });
       await result.wait();
 
-      carMintedBool = isCarMinted(account);
-      console.log(carMintedBool);
+      const isMinted = await isCarMinted(account);
+      setMinted(isMinted);
 
     } else {
 
@@ -140,25 +149,12 @@ function Garage() {
       setImageCID(carImageCID);
 
     }
-
-    //const mintCar = async (addr, stockCarMetadataURI, stockCarMetadataURIb32) => {
-    //
-    //    const providerUser = new ethers.providers.Web3Provider(window.ethereum);
-    //    // get the end user
-    //    const signerUser = providerUser.getSigner();
-    //    // get the smart contract
-    //    const contractUser = new ethers.Contract(contractAddress, CryptoWheels.abi, signerUser);
-    //
-    //    await contract.payToMintCar(addr, stockCarMetadataURI, stockCarMetadataURIb32);
-    //
-    //}
-
   }
 
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      {!carMintedBool ? (
+      {!minted ? (
         <button className="btn btn-primary w-50" onClick={myCar}>
           START PLAY BUILDING YOUR CAR
         </button>
@@ -167,7 +163,6 @@ function Garage() {
       )}
     </div>
   );
-
+  
 }
-
 export default Garage;
