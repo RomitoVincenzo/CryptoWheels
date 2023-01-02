@@ -81,6 +81,7 @@ function Garage() {
 
   const [imageCID, setImageCID] = useState();
   const [minted, setMinted] = useState(false);
+  const [address, setAddress] = useState();
 
   // Effect necessario per far si che la pagina sia aggiornata quando la macchina viene mintata (fine if) 
   useEffect(() => {
@@ -100,12 +101,12 @@ function Garage() {
       myCar();
     }
   }, [minted]);
-
+  
   const myCar = async () => {
 
     const requestAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const account = requestAccounts[0];
-    console.log(account);
+    setAddress(account);
 
     let carID = await contract.getCarID(account);
     let carCIDb32 = await contract.getCarCID(carID);
@@ -136,6 +137,8 @@ function Garage() {
       });
       await result.wait();
 
+      console.log(await contract.fetchMyNFTItems(account));
+      
       const isMinted = await isCarMinted(account);
       setMinted(isMinted);
 
@@ -144,22 +147,13 @@ function Garage() {
       let carCID = convertBytes32ToBytes58(carCIDb32);
       let metadataURICar = ipfs.cat(carCID);
 
-      //prendiamo il CID dal car.json
-      let decoder = new TextDecoder()
-      let data = ''
-      for await (const chunk of metadataURICar) {
-        // chunks of data are returned as a Uint8Array, convert it back to a string
-        data += decoder.decode(chunk, { stream: true })
-      }
+      let jsonObject = await Uint8ArrayToJSON(metadataURICar);
 
-      const jsonObject = JSON.parse(data);
-      console.log(jsonObject)
       let carImageCID = jsonObject.ImageCID;
       console.log(carImageCID);
       setImageCID(carImageCID);
 
       console.log("The items you have on your car:");
-      //console.log(jsonObject.items);
 
       //showing equipped items
       var headlightsCID = jsonObject.items.headlights;
@@ -168,6 +162,7 @@ function Garage() {
       var wrapCID = jsonObject.items.wrap;
       var tinted_windowsCID = jsonObject.items.tinted_windows;
       let metadataURIheadlights = ipfs.cat(headlightsCID);
+      
       if (headlightsCID != "") {
         console.log(Uint8ArrayToJSON(metadataURIheadlights))
         //show image
@@ -175,17 +170,17 @@ function Garage() {
       else {
         console.log("Standard headlights")
       }
-      let metadataURIheadspoiler = ipfs.cat(spoilerCID);
+      let metadataURIspoiler = ipfs.cat(spoilerCID);
       if (spoilerCID != "") {
-        console.log(Uint8ArrayToJSON(metadataURIheadspoiler))
+        console.log(Uint8ArrayToJSON(metadataURIspoiler))
         //show image
       }
       else {
         console.log("Standard spoiler")
       }
-      let metadataURIheadrimCID = ipfs.cat(rimCID);
+      let metadataURIrim = ipfs.cat(rimCID);
       if (rimCID != "") {
-        console.log(Uint8ArrayToJSON(metadataURIheadrimCID))
+        console.log(Uint8ArrayToJSON(metadataURIrim))
         //show image
       }
       else {
@@ -206,12 +201,64 @@ function Garage() {
       else {
         console.log("No tinted windows")
       }
+      
       const CIDs = await contract.getItemToCID(account)
-      //console.log(CIDs)
+      console.log(CIDs)
       for (let i = 0; i < CIDs.length; i++) {
         console.log(convertBytes32ToBytes58(CIDs[i]))
       }
+
+      let myAppliedItems = [spoilerCID, rimCID, wrapCID, tinted_windowsCID, headlightsCID]; 
+      let myNotAppliedItems = [];
+      for (let i = 0; i < CIDs.length; i++) {
+        let notAppliedCID = convertBytes32ToBytes58(CIDs[i])
+        if (!notAppliedCID.includes(myAppliedItems)) {     
+          myNotAppliedItems.push(notAppliedCID);
+        }
+      }
+      console.log(myAppliedItems)
+      console.log(myNotAppliedItems)
+      
     }
+  }
+
+  const applyItem = async (itemMetadataCID) => {
+  
+    // Transazione pagamento dell'applicazione 
+    const result = await contract.payToMintCar({
+      value: ethers.utils.parseEther('0.05'),
+    });
+    await result.wait();
+
+    // Prendersi l'imageCID itemImageCID = json.ImageURI
+    let itemMetadataURI = ipfs.cat(itemMetadataCID);
+    let jsonObjectItem = await Uint8ArrayToJSON(itemMetadataURI);
+    let itemImageCID = jsonObjectItem.imageCID; 
+    let itemType = jsonObjectItem.type;
+
+    // Prendiamo il json della macchina attuale 
+    let carID = await contract.getCarID(address);
+    let carCIDb32 = await contract.getCarCID(carID);
+    let carCID = convertBytes32ToBytes58(carCIDb32);
+    let metadataURICar = ipfs.cat(carCID);
+    let jsonObjectCar = await Uint8ArrayToJSON(metadataURICar);
+
+    //let newJson = jsonObjectCar.items.${itemType}
+
+    // Merge dell'immagine (da zero, )
+
+    // Prendiamo item applicati e non applicati 
+    
+    let myAppliedItems = [spoilerCID, rimCID, wrapCID, tinted_windowsCID, headlightsCID]; 
+    
+
+    // Caricamento dell'immagine su IPFS
+    // Aggiornare il json della macchina per mettere il CID del pezzo in items
+    // e l'immagine della nuova macchina
+    // Caricamento del json 
+    // Transazione con aggiornamento del mapping carToCID (setCarCid)
+    // Chiamata a myCar per aggiornare le componenti grafiche
+
   }
 
   return (

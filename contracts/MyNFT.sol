@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "hardhat/console.sol";
 
 contract CryptoWheels is ERC721, ERC721URIStorage {
     using Counters for Counters.Counter;
@@ -93,9 +94,9 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     ) public payable returns (uint256) {
         require(msg.value >= 0.05 ether, "Need to pay up!");
 
-        uint256 newItemId = _itemIdCounter.current();
         _itemIdCounter.increment();
-
+        uint256 newItemId = _itemIdCounter.current();
+        
         _mint(recipient, newItemId);
         _setTokenURI(newItemId, metadataURI);
         itemToOwner[newItemId] = recipient;
@@ -110,48 +111,55 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     ) public payable returns (uint256) {
         require(msg.value >= 0.05 ether, "Need to pay up!");
 
-        uint256 newItemId = _itemIdCounter.current();
         _itemIdCounter.increment();
+        uint256 newItemId = _itemIdCounter.current();
 
         _mint(recipient, newItemId);
         _setTokenURI(newItemId, stockCarMetadataURI);
         ownerToCar[recipient] = newItemId;
         carToCID[newItemId] = stockCarMetadataURIb32;
+        console.log(newItemId);
+        console.logBytes32(stockCarMetadataURIb32);
 
         return newItemId;
     }
 
-    function fetchMyNFTs(address adr) public view returns (uint256[] memory) {
+    function payToApplyItem() public payable { 
+        require(msg.value >= 0.05 ether, "Need to pay up!");
+    }
+
+    function fetchMyNFTItems(address adr) public view returns (uint256[] memory) {
+        require(ownerToCar[adr] != 0, "You have to register to the game first");
         uint256 totalItemCount = _itemIdCounter.current();
         uint256 itemCount = 0;
         uint256 currentIndex = 0;
 
-        for (uint256 i = 0; i < totalItemCount; i++) {
+        for (uint256 i = 1; i <= totalItemCount; i++) {
             if (itemToOwner[i] == adr) {
                 itemCount += 1;
             }
         }
-        uint256[] memory items = new uint256[](totalItemCount);
-        for (uint256 i = 0; i < totalItemCount; i++) {
+        uint256[] memory items = new uint256[](itemCount);
+        for (uint256 i = 1; i <= totalItemCount; i++) {
             if (itemToOwner[i] == adr) {
-                uint256 currentId = i;
-                items[currentIndex] = currentId;
+                items[currentIndex] = i;
                 currentIndex += 1;
             }
+        }
+        for (uint256 i = 0; i < itemCount; i++) {
+            console.log(items[i]);
         }
         return items;
     }
 
     function getItemToCID(address adr) public view returns (bytes32[] memory) {
         require(ownerToCar[adr] != 0, "You have to register to the game first");
-        uint256[] memory mynfts = fetchMyNFTs(adr);
-        uint256 dim = mynfts.length - 1;
+        uint256[] memory mynfts = fetchMyNFTItems(adr);
+        uint256 dim = mynfts.length;
         bytes32[] memory ret = new bytes32[](dim);
         for (uint256 i = 0; i < dim; i++) {
-            if (carToCID[mynfts[i]] == 0) {
-                ret[i] = itemToCID[mynfts[i]];
+            ret[i] = itemToCID[mynfts[i]];
             }
-        }
         return ret;
     }
 
