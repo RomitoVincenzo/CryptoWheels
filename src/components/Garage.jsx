@@ -39,7 +39,17 @@ const authorization = "Basic " + btoa(projectId + ":" + projectSecret);
 // create the connection to infura ipfs
 const ipfs = create({ host: 'ipfs.infura.io', port: 5001, protocol: 'https', headers: { authorization } });
 
-function hashToBytes32(hash) {
+async function Uint8ArrayToJSON(Uint8Array) {
+  let decoder = new TextDecoder()
+  let data = ''
+  for await (const chunk of Uint8Array) {
+    data += decoder.decode(chunk, { stream: true })
+  }
+
+  return JSON.parse(data)
+}
+
+export function hashToBytes32(hash) {
   const result = ethers.utils
     .hexlify(
       ethers.utils.base58
@@ -49,21 +59,21 @@ function hashToBytes32(hash) {
   return result;
 }
 
-function convertBytes32ToBytes58(bytes32) {
+export function convertBytes32ToBytes58(bytes32) {
   const result = ethers.utils.base58.encode(
     Buffer.from("1220" + bytes32.slice(2), "hex")
   );
   return result;
 }
 
-async function isCarMinted(account) { 
+async function isCarMinted(account) {
   let carID = await contract.getCarID(account);
   let carCIDb32 = await contract.getCarCID(carID);
   if (carCIDb32 == 0) {
-      return false;
-  } 
+    return false;
+  }
   else {
-      return true;
+    return true;
   }
 }
 
@@ -82,7 +92,7 @@ function Garage() {
     }
     checkMinted();
   }, [minted]);
-  
+
   // Effetto necessario per far si che se la macchina è stata mintata venga comunque lanciata la funzione myCar 
   // (nel caso in cui la macchina non è mintata, myCar viene chiamata con il click del bottone)
   useEffect(() => {
@@ -101,7 +111,7 @@ function Garage() {
     let carCIDb32 = await contract.getCarCID(carID);
 
     if (carCIDb32 == 0) {
-
+      //DO NOT ADD THE IMAGE BEFORE TRANSACTION IS COMPLETED (CRITICAL)
       console.log("IF");
       const loadedData = JSON.stringify(data);
       const jsonObject = JSON.parse(loadedData);
@@ -135,7 +145,7 @@ function Garage() {
       let metadataURICar = ipfs.cat(carCID);
 
       //prendiamo il CID dal car.json
-      const decoder = new TextDecoder()
+      let decoder = new TextDecoder()
       let data = ''
       for await (const chunk of metadataURICar) {
         // chunks of data are returned as a Uint8Array, convert it back to a string
@@ -148,9 +158,61 @@ function Garage() {
       console.log(carImageCID);
       setImageCID(carImageCID);
 
+      console.log("The items you have on your car:");
+      //console.log(jsonObject.items);
+
+      //showing equipped items
+      var headlightsCID = jsonObject.items.headlights;
+      var spoilerCID = jsonObject.items.spoiler;
+      var rimCID = jsonObject.items.rim;
+      var wrapCID = jsonObject.items.wrap;
+      var tinted_windowsCID = jsonObject.items.tinted_windows;
+      let metadataURIheadlights = ipfs.cat(headlightsCID);
+      if (headlightsCID != "") {
+        console.log(Uint8ArrayToJSON(metadataURIheadlights))
+        //show image
+      }
+      else {
+        console.log("Standard headlights")
+      }
+      let metadataURIheadspoiler = ipfs.cat(spoilerCID);
+      if (spoilerCID != "") {
+        console.log(Uint8ArrayToJSON(metadataURIheadspoiler))
+        //show image
+      }
+      else {
+        console.log("Standard spoiler")
+      }
+      let metadataURIheadrimCID = ipfs.cat(rimCID);
+      if (rimCID != "") {
+        console.log(Uint8ArrayToJSON(metadataURIheadrimCID))
+        //show image
+      }
+      else {
+        console.log("Standard rim")
+      }
+      let metadataURIwrap = ipfs.cat(wrapCID);
+      if (wrapCID != "") {
+        console.log(Uint8ArrayToJSON(metadataURIwrap))
+        //show image
+      }
+      else {
+        console.log("Standard wrap")
+      }
+      let metadataURItinted_windows = ipfs.cat(tinted_windowsCID);
+      if (tinted_windowsCID != "") {
+        console.log(Uint8ArrayToJSON(metadataURItinted_windows))
+      }
+      else {
+        console.log("No tinted windows")
+      }
+      const CIDs = await contract.getItemToCID(account)
+      //console.log(CIDs)
+      for (let i = 0; i < CIDs.length; i++) {
+        console.log(convertBytes32ToBytes58(CIDs[i]))
+      }
     }
   }
-
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -163,6 +225,6 @@ function Garage() {
       )}
     </div>
   );
-  
+
 }
 export default Garage;

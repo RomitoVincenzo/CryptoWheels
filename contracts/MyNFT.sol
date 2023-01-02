@@ -16,6 +16,7 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     mapping(uint256 => address) public itemToOwner;
     mapping(address => uint256) public ownerToCar;
     mapping(uint256 => bytes32) public carToCID;
+    mapping(uint256 => bytes32) public itemToCID;
 
     /*event MarketItemCreated (
       uint256 indexed tokenId,
@@ -87,7 +88,8 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
 
     function payToMint(
         address recipient,
-        string memory metadataURI //json cid
+        string memory metadataURI, //json cid
+        bytes32 itemMetadataURIb32
     ) public payable returns (uint256) {
         require(msg.value >= 0.05 ether, "Need to pay up!");
 
@@ -97,7 +99,7 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         _mint(recipient, newItemId);
         _setTokenURI(newItemId, metadataURI);
         itemToOwner[newItemId] = recipient;
-
+        itemToCID[newItemId] = itemMetadataURIb32;
         return newItemId;
     }
 
@@ -138,6 +140,19 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
             }
         }
         return items;
+    }
+
+    function getItemToCID(address adr) public view returns (bytes32[] memory) {
+        require(ownerToCar[adr] != 0, "You have to register to the game first");
+        uint256[] memory mynfts = fetchMyNFTs(adr);
+        uint256 dim = mynfts.length - 1;
+        bytes32[] memory ret = new bytes32[](dim);
+        for (uint256 i = 0; i < dim; i++) {
+            if (carToCID[mynfts[i]] == 0) {
+                ret[i] = itemToCID[mynfts[i]];
+            }
+        }
+        return ret;
     }
 
     function count() public view returns (uint256) {

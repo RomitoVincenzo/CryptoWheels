@@ -7,6 +7,7 @@ import { create } from 'ipfs-http-client';
 import { } from 'react-bootstrap';
 import data from '../../json/0.json';
 
+import { hashToBytes32, convertBytes32ToBytes58 } from './Garage';
 const contractAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -76,15 +77,15 @@ function NFTMint() {
         //console.log(response.path); // Stampa l'hash del file caricato su IPFS
         metadataURI = response.path;
       });
-      const result = await contract.payToMint(addr, metadataURI, {
+      const result = await contract.payToMint(addr, metadataURI, hashToBytes32(metadataURI), {
         value: ethers.utils.parseEther('0.05'),
       });
 
       await result.wait();
       console.log(jsonObject)
       //DA RIMUOVERE E INSERIRE IN MYNFTS.JSX
-      const newnft = contract.fetchMyNFTs(addr)
-      console.log(newnft)
+      //const newnft = contract.fetchMyNFTs(addr)
+      //console.log(newnft)
       //............................
 
       setSuccess(true);
