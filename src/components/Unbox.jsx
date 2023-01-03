@@ -6,6 +6,30 @@ import { Buffer } from 'buffer';
 import { create } from 'ipfs-http-client';
 import { } from 'react-bootstrap';
 import data from '../../json/0.json';
+import {
+  HEADLIGHTS_COMMON_CID,
+  HEADLIGHTS_LEGENDARY_CID,
+  HEADLIGHTS_RARE_CID,
+  RIM_COMMON_1_CID,
+  RIM_COMMON_2_CID,
+  RIM_COMMON_3_CID,
+  RIM_LEGENDARY_CID,
+  RIM_RARE_1_CID,
+  RIM_RARE_2_CID,
+  SPOILER_COMMON_1_CID,
+  SPOILER_COMMON_2_CID,
+  SPOILER_COMMON_3_CID,
+  SPOILER_LEGENDARY_CID,
+  SPOILER_RARE_1_CID,
+  SPOILER_RARE_2_CID,
+  TINTED_WINDOWS_LEGENDARY_CID,
+  WRAP_COMMON_1_CID,
+  WRAP_COMMON_2_CID,
+  WRAP_COMMON_3_CID,
+  WRAP_LEGENDARY_CID,
+  WRAP_RARE_1_CID,
+  WRAP_RARE_2_CID,
+} from '../../unboxable_items_CID';
 
 import { hashToBytes32, convertBytes32ToBytes58 } from './Garage';
 const contractAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
@@ -59,9 +83,13 @@ function NFTMint() {
       //const addr = connection.address;
       const requestAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       const addr = requestAccounts[0];
+
+      unboxed_item_CID = unbox_item();
+      let metadataURIItem = ipfs.cat(unboxed_item_CID);
+      let jsonObject = await Uint8ArrayToJSON(metadataURIItem);
       // load and parse the template json of the nft 
-      const loadedData = JSON.stringify(data);
-      const jsonObject = JSON.parse(loadedData);
+      //const loadedData = JSON.stringify(data);
+      //const jsonObject = JSON.parse(loadedData);
 
       // modify variable parameters of the json (minter, date, id)
       const current = new Date();
@@ -120,6 +148,122 @@ function NFTMint() {
       </div>
     </div>
   );
+}
+
+function extractItem(commonProbability, rareProbability) {
+  // Generate a random number between 0 and 1
+  const randomNumber = Math.random();
+
+  // Check if the random number falls under the probability of extracting a common item
+  if (randomNumber < commonProbability) {
+    return 'common';
+  }
+
+  // Check if the random number falls under the probability of extracting a rare item
+  if (randomNumber < commonProbability + rareProbability) {
+    return 'rare';
+  }
+
+  // If the random number doesn't fall under the probability of a common or rare item, it must be a legendary item
+  return 'legendary';
+}
+
+// Generate a random number between 2 and 10, including both 2 and 10
+function generateRandomIntegerInRange(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
+function unbox_item() {
+
+  //which rarity has been unboxed
+  let rarity = extractItem(0.75, 0.22);
+  let itemCategory;
+  let itemNumber;
+  switch (rarity) {
+    case 'common':
+      itemCategory = generateRandomIntegerInRange(1, 3); //1:spoiler 2:rim 3:wrap
+      itemNumber = generateRandomIntegerInRange(1, 3);
+      switch (itemCategory) {
+        case 1:
+          switch (itemNumber) {
+            case 1: return SPOILER_COMMON_1_CID;
+            case 2: return SPOILER_COMMON_2_CID;
+            case 3: return SPOILER_COMMON_3_CID;
+            default: break;
+          }
+          break;
+        case 2:
+          switch (itemNumber) {
+            case 1: return RIM_COMMON_1_CID;
+            case 2: return RIM_COMMON_2_CID;
+            case 3: return RIM_COMMON_3_CID;
+            default: break;
+          }
+          break;
+        case 3:
+          switch (itemNumber) {
+            case 1: return WRAP_COMMON_1_CID;
+            case 2: return WRAP_COMMON_2_CID;
+            case 3: return WRAP_COMMON_3_CID;
+            default: break;
+          }
+          break;
+        default:
+          break;
+      }
+      break;
+    case 'rare':
+      itemCategory = generateRandomIntegerInRange(1, 4); //1:spoiler 2:rim 3:wrap 4:headlights
+      itemNumber = generateRandomIntegerInRange(1, 2);
+      switch (itemCategory) {
+        case 1:
+          switch (itemNumber) {
+            case 1: return SPOILER_RARE_1_CID;
+            case 2: return SPOILER_RARE_2_CID;
+            default: break;
+          }
+          break;
+        case 2:
+          switch (itemNumber) {
+            case 1: return RIM_RARE_1_CID;
+            case 2: return RIM_RARE_2_CID;
+            default: break;
+          }
+          break;
+        case 3:
+          switch (itemNumber) {
+            case 1: return WRAP_RARE_1_CID;
+            case 2: return WRAP_RARE_2_CID;
+            default: break;
+          }
+          break;
+        case 4:
+          return HEADLIGHTS_RARE_CID;
+        default:
+          break;
+      }
+      break;
+    case 'legendary':
+      itemCategory = generateRandomIntegerInRange(1, 5); //1:spoiler 2:rim 3:wrap 4:headlights 5:tinted_windows
+      switch (itemCategory) {
+        case 1:
+          return SPOILER_LEGENDARY_CID;
+        case 2:
+          return RIM_LEGENDARY_CID;
+        case 3:
+          return WRAP_LEGENDARY_CID;
+        case 4:
+          return HEADLIGHTS_LEGENDARY_CID;
+        case 5:
+          return TINTED_WINDOWS_LEGENDARY_CID;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
 }
 
 export default Unbox;
