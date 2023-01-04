@@ -33,7 +33,7 @@ import {
 
 import { hashToBytes32, convertBytes32ToBytes58 } from './Garage';
 const contractAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
-
+const carBodyImageCID = 'QmVz6CoMLu6iFy87T1fmHRPbX5iF3zuWMetD7DLMAAamWm';
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
 // get the end user

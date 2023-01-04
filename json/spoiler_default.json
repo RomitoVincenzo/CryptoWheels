@@ -1,7 +1,7 @@
 {
     "type": "spoiler",
     "rarity": "default",
-    "imageCID": "TODO set correct CID once uploaded the image on IPFS",
+    "imageCID": "QmduEutVpUSLSxLPiiNNA5ibqL2UjXqUvNN2EaA7xnA8zJ",
     "minter": "this is for developing purpose, it cannot be unboxed by the user",
     "id": "this is for developing purpose, it cannot be unboxed by the user",
     "minting_date": "this is for developing purpose, it cannot be unboxed by the user"
