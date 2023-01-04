@@ -5,31 +5,7 @@ import CryptoWheels from '../artifacts/contracts/MyNFT.sol/CryptoWheels.json';
 import { Buffer } from 'buffer';
 import { create } from 'ipfs-http-client';
 import { } from 'react-bootstrap';
-import data from '../../json/0.json';
-import {
-  HEADLIGHTS_COMMON_CID,
-  HEADLIGHTS_LEGENDARY_CID,
-  HEADLIGHTS_RARE_CID,
-  RIM_COMMON_1_CID,
-  RIM_COMMON_2_CID,
-  RIM_COMMON_3_CID,
-  RIM_LEGENDARY_CID,
-  RIM_RARE_1_CID,
-  RIM_RARE_2_CID,
-  SPOILER_COMMON_1_CID,
-  SPOILER_COMMON_2_CID,
-  SPOILER_COMMON_3_CID,
-  SPOILER_LEGENDARY_CID,
-  SPOILER_RARE_1_CID,
-  SPOILER_RARE_2_CID,
-  TINTED_WINDOWS_LEGENDARY_CID,
-  WRAP_COMMON_1_CID,
-  WRAP_COMMON_2_CID,
-  WRAP_COMMON_3_CID,
-  WRAP_LEGENDARY_CID,
-  WRAP_RARE_1_CID,
-  WRAP_RARE_2_CID,
-} from '../../unboxable_items_CID';
+import items from '../../json';
 
 import { hashToBytes32, convertBytes32ToBytes58 } from './Garage';
 const contractAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
@@ -84,12 +60,15 @@ function NFTMint() {
       const requestAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       const addr = requestAccounts[0];
 
-      unboxed_item_CID = unbox_item();
-      let metadataURIItem = ipfs.cat(unboxed_item_CID);
-      let jsonObject = await Uint8ArrayToJSON(metadataURIItem);
+
       // load and parse the template json of the nft 
-      //const loadedData = JSON.stringify(data);
-      //const jsonObject = JSON.parse(loadedData);
+
+      unboxed_json = unbox_item();
+      //go take this file in some way using import items from '../../json' before
+
+      //THIS IS NOT GOING TO WORK, USE IMPORTED FOLDER ITEMS TO LOAD FILE
+      const loadedData = JSON.stringify();
+      const jsonObject = JSON.parse(loadedData);
 
       // modify variable parameters of the json (minter, date, id)
       const current = new Date();
@@ -187,25 +166,25 @@ function unbox_item() {
       switch (itemCategory) {
         case 1:
           switch (itemNumber) {
-            case 1: return SPOILER_COMMON_1_CID;
-            case 2: return SPOILER_COMMON_2_CID;
-            case 3: return SPOILER_COMMON_3_CID;
+            case 1: return "spoiler_common_1.json";
+            case 2: return "spoiler_common_2.json";
+            case 3: return "spoiler_common_3.json";
             default: break;
           }
           break;
         case 2:
           switch (itemNumber) {
-            case 1: return RIM_COMMON_1_CID;
-            case 2: return RIM_COMMON_2_CID;
-            case 3: return RIM_COMMON_3_CID;
+            case 1: return "rim_common_1.json";
+            case 2: return "rim_common_2.json";
+            case 3: return "rim_common_3.json";
             default: break;
           }
           break;
         case 3:
           switch (itemNumber) {
-            case 1: return WRAP_COMMON_1_CID;
-            case 2: return WRAP_COMMON_2_CID;
-            case 3: return WRAP_COMMON_3_CID;
+            case 1: return "wrap_common_1.json";
+            case 2: return "wrap_common_2.json";
+            case 3: return "wrap_common_3.json";
             default: break;
           }
           break;
@@ -219,27 +198,27 @@ function unbox_item() {
       switch (itemCategory) {
         case 1:
           switch (itemNumber) {
-            case 1: return SPOILER_RARE_1_CID;
-            case 2: return SPOILER_RARE_2_CID;
+            case 1: return "spoiler_rare_1.json";
+            case 2: return "spoiler_rare_2.json";
             default: break;
           }
           break;
         case 2:
           switch (itemNumber) {
-            case 1: return RIM_RARE_1_CID;
-            case 2: return RIM_RARE_2_CID;
+            case 1: return "rim_rare_1.json";
+            case 2: return "rim_rare_2.json";
             default: break;
           }
           break;
         case 3:
           switch (itemNumber) {
-            case 1: return WRAP_RARE_1_CID;
-            case 2: return WRAP_RARE_2_CID;
+            case 1: return "wrap_rare_1.json";
+            case 2: return "wrap_rare_2.json";
             default: break;
           }
           break;
         case 4:
-          return HEADLIGHTS_RARE_CID;
+          return "headlights_rare_1.json";
         default:
           break;
       }
@@ -248,15 +227,15 @@ function unbox_item() {
       itemCategory = generateRandomIntegerInRange(1, 5); //1:spoiler 2:rim 3:wrap 4:headlights 5:tinted_windows
       switch (itemCategory) {
         case 1:
-          return SPOILER_LEGENDARY_CID;
+          return "spoiler_legendary.json";
         case 2:
-          return RIM_LEGENDARY_CID;
+          return "rim_legendary.json";
         case 3:
-          return WRAP_LEGENDARY_CID;
+          return "wrap_legendary.json";
         case 4:
-          return HEADLIGHTS_LEGENDARY_CID;
+          return "headlights_legendary.json";
         case 5:
-          return TINTED_WINDOWS_LEGENDARY_CID;
+          return "tinted_windows_legendary.json";
         default:
           break;
       }
