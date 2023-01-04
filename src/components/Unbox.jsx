@@ -52,7 +52,7 @@ function Unbox() {
   return (
     <div>
       <WalletBalance />
-      <h1 style={{ textAlign: "center" }}>UNBOX YOUR NFT</h1>
+      <h1 style={{ textAlign: "center" }}>UNBOX YOUR CAR ITEM</h1>
       <div className="container" style={{ display: "flex", justifyContent: "center" }}>
         <div className="row" style={{ margin: "auto" }}>
           <div className="col-sm" style={{ margin: "auto" }}>
@@ -72,7 +72,7 @@ function NFTMint() {
   const mintToken = async () => {
 
     setLoading(true);
-
+    let metadataURI;
     try {
       // connection to the contract
       //const connection = contract.connect(signer);
@@ -94,7 +94,6 @@ function NFTMint() {
       jsonObject.id = nextID.toNumber();
 
       // upload of the json to ipfs and get of the hash
-      let metadataURI;
       await ipfs.add(Buffer.from(JSON.stringify(jsonObject))).then((response) => {
         //console.log(response.path); // Stampa l'hash del file caricato su IPFS
         metadataURI = response.path;
@@ -104,6 +103,7 @@ function NFTMint() {
       });
 
       await result.wait();
+      //console.log(result);
       console.log(jsonObject)
       //DA RIMUOVERE E INSERIRE IN MYNFTS.JSX
       //const newnft = contract.fetchMyNFTs(addr)
@@ -113,6 +113,9 @@ function NFTMint() {
       setSuccess(true);
     } catch (error) {
       console.error(error);
+      setSuccess(false);
+      const cid = ipfs.pin.rm(metadataURI);
+      console.log(cid);
     } finally {
       setLoading(false);
     }
@@ -136,7 +139,7 @@ function NFTMint() {
         )}
         {success && (
           <p className="mt-2 text-success">
-            NFT Creato! Scopri il tuo NFT nella sezione MyNFTs
+            NFT Unboxed! Go on your garage to look at it!
           </p>
         )}
       </div>
@@ -229,7 +232,7 @@ function unbox_item() {
           }
           break;
         case 4:
-          return headlights_rare_1;
+          return headlights_rare;
         default:
           break;
       }
