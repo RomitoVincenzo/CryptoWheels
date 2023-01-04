@@ -1,1 +1,13 @@
-{"ImageCID":"QmWLoMS4sAFngUJoCfGif211MvGGR6kG9XaafzyWoJXgQU", "owner":"", "minting_date":"", "id":"", "items":{"headlights":"", "spoiler":"", "rim":"", "wrap":"", "tinted_windows":""}}
+{
+    "ImageCID": "TODO insert default car png cid",
+    "owner": "",
+    "minting_date": "",
+    "id": "",
+    "items": {
+        "headlights": "",
+        "spoiler": "",
+        "rim": "",
+        "wrap": "",
+        "tinted_windows": ""
+    }
+}

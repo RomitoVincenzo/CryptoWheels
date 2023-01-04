@@ -1,0 +1,8 @@
+{
+    "type": "headlights",
+    "rarity": "default",
+    "imageCID": "TODO set correct CID once uploaded the image on IPFS",
+    "minter": "this is for developing purpose, it cannot be unboxed by the user",
+    "id": "this is for developing purpose, it cannot be unboxed by the user",
+    "minting_date": "this is for developing purpose, it cannot be unboxed by the user"
+}
