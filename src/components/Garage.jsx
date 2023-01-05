@@ -26,6 +26,7 @@ const authorization = "Basic " + btoa(projectId + ":" + projectSecret);
 // create the connection to infura ipfs
 const ipfs = create({ host: 'ipfs.infura.io', port: 5001, protocol: 'https', headers: { authorization } });
 
+// Json decoding function
 async function Uint8ArrayToJSON(Uint8Array) {
   let decoder = new TextDecoder()
   let data = ''
@@ -36,6 +37,7 @@ async function Uint8ArrayToJSON(Uint8Array) {
   return JSON.parse(data)
 }
 
+// Function to convert a CID IPFS hash type to a bytes32 type (used to set values in contract mappings)
 export function hashToBytes32(hash) {
   const result = ethers.utils
     .hexlify(
@@ -46,6 +48,7 @@ export function hashToBytes32(hash) {
   return result;
 }
 
+// Function to convert a bytes32 (used in contract mappings) type in an CID IPFS hash type (bytes58) 
 export function convertBytes32ToBytes58(bytes32) {
   const result = ethers.utils.base58.encode(
     Buffer.from("1220" + bytes32.slice(2), "hex")
@@ -53,6 +56,7 @@ export function convertBytes32ToBytes58(bytes32) {
   return result;
 }
 
+// Function that check from the contract if the user has its car already minted
 async function isCarMinted(account) {
   let carID = await contract.getCarID(account);
   let carCIDb32 = await contract.getCarCID(carID);
@@ -64,15 +68,17 @@ async function isCarMinted(account) {
   }
 }
 
-import axios from 'axios';
+// Function that call the endpoint "create-composite" of the BE to get the merged image
+// Return a base64 encoded image (to be uploaded on IPFS)
 
+import axios from 'axios';
 const fetchComposite = async (cidArray) => {
   try {
     console.log(cidArray);
     axios.defaults.headers.post['Content-Type'] = 'application/json';
-    // Invia una richiesta HTTP POST al backend con l'array di CID come corpo della richiesta
+    // Send an HTTP POST Request to the backend with the CID Array as body
     let response = await axios.post('http://localhost:3001/create-composite', cidArray);
-    // Riceve il composite in formato JPEG come risposta
+    
     let compositeBase64 = response.data;
     return compositeBase64;
   } catch (error) {
@@ -85,9 +91,8 @@ function Garage() {
   const [imageCID, setImageCID] = useState();
   const [minted, setMinted] = useState(false);
   const [address, setAddress] = useState();
-  //const [mergedImageCID, setMergedImageCID] = useState();
 
-  // Effect necessario per far si che la pagina sia aggiornata quando la macchina viene mintata (fine if) 
+  // Effect needed in order to update the page when the car is minted (end of myCar:if-condition)
   useEffect(() => {
     async function checkMinted() {
       const requestAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -98,8 +103,8 @@ function Garage() {
     checkMinted();
   }, [minted]);
 
-  // Effetto necessario per far si che se la macchina è stata mintata venga comunque lanciata la funzione myCar 
-  // (nel caso in cui la macchina non è mintata, myCar viene chiamata con il click del bottone)
+  // Effect needed in order to run myCar function even if the car is already minted
+  // (If the car is not already minted, myCar function will be launched by the onClick event of the button)
   useEffect(() => {
     if (minted) {
       myCar();
@@ -132,7 +137,6 @@ function Garage() {
       // upload of the json to ipfs and get of the hash
       let metadataURICar;
       await ipfs.add(Buffer.from(JSON.stringify(jsonObject))).then((response) => {
-        //console.log(response.path); // Stampa l'hash del file caricato su IPFS
         metadataURICar = response.path;
         console.log(metadataURICar);
       });
@@ -236,7 +240,7 @@ function Garage() {
 
   const applyItem = async (itemMetadataCID) => {
     
-    // Transazione pagamento dell'applicazione 
+    // Transaction payment of the item application
     const result = await contractWithSigner.payToApplyItem({
       from: address,
       value: ethers.utils.parseEther('0.05'),
@@ -244,30 +248,30 @@ function Garage() {
     console.log(result)
     await result.wait();
 
-    // Prendersi l'imageCID itemImageCID = json.ImageURI
+    // Take the input item metadata
     let itemMetadataURI = ipfs.cat(itemMetadataCID);
     let jsonObjectItem = await Uint8ArrayToJSON(itemMetadataURI);
-    //let itemImageCID = jsonObjectItem.imageCID; 
+    // Discover the item type to be applied
     let itemType = jsonObjectItem.type;
 
-        // Prendiamo il json della macchina attuale 
+    // Take the current metadata of the user car
     let carID = await contract.getCarID(address);
     let carCIDb32 = await contract.getCarCID(carID);
     let carCID = convertBytes32ToBytes58(carCIDb32);
     let metadataURICar = ipfs.cat(carCID);
     let jsonObjectCar = await Uint8ArrayToJSON(metadataURICar);
 
-    // Sostuiamo il valore corrente del json con quello nuovo
+    // Substitute the current metadata CID of the specific type with the new one in the car metadata
     jsonObjectCar.items[itemType] = itemMetadataCID;
     
-    // Prendiamo i json degli item applicati e non applicati
+    // Take the metadata CID of the applied and not applied items of the car
     var headlightsCID = jsonObjectCar.items.headlights;
     var spoilerCID = jsonObjectCar.items.spoiler;
     var rimCID = jsonObjectCar.items.rim;
     var wrapCID = jsonObjectCar.items.wrap;
     var tinted_windowsCID = jsonObjectCar.items.tinted_windows;
 
-    // Se un item è applicato aggiungo il CID della sua immagine alla lista listItemsImageCIDs
+    // If an item is applied, push its image CID in the listItemsImageCIDs array
 
     let listItemsImageCIDs = [];
 
@@ -302,58 +306,57 @@ function Garage() {
     }
 
     console.log(listItemsImageCIDs);
-    // Merge dell'immagine - prendo tutti gli imageCid della lista e li mergio componendo le url    
-
-    // Caricamento dell'immagine su IPFS
     
-    //let mergedImageCID;
+    // Merge of the image - Pass the image CIDs array to the fetchComposite function 
+    // (it will call the CryptoWheels-ImageComposition BE) 
+    
     let imageBase64 = await fetchComposite(listItemsImageCIDs)
-    //imageBase64 = "data:image/png;base64," + imageBase64;
 
-    //let imageBuffer = Buffer.from(imageBase64, 'base64');
-    //let mergedImageCID = await uploadCompositeToIPFS(composite)
-    
+    // Upload of the new merged image to IPFS
+
     let mergedImageCID; 
     await ipfs.add(Buffer.from(imageBase64, 'base64')).then((response) => {
-      //console.log(response.path); // Stampa l'hash del file caricato su IPFS
       mergedImageCID = response.path;
       console.log(mergedImageCID);      
     });
 
-    //setMergedImageCID(mergedImageCID);
+    // Unpin of old image from IPFS, except for stock car image CID 
+    stockCarImageCID = "QmVz6CoMLu6iFy87T1fmHRPbX5iF3zuWMetD7DLMAAamWm"
+    if (jsonObjectCar.ImageCID != stockCarImageCID) {
+      ipfs.pin.rm(jsonObjectCar.ImageCID);
+    }
 
-    //INSERIRE UNPIN DELL IMMAGINE DA INFURA ------------------------- IMPORTANTE!!!
-
-    // Aggiornare il json della macchina per mettere il CID del pezzo in items
+    // Update the current metadata of the car to subsitute the image CID with the new merged one
     jsonObjectCar.ImageCID = mergedImageCID;
 
-    // Caricamento del json 
+    // Upload of the updated car metadata to IPFS  
     let mergedCarMetadataCID;
     await ipfs.add(Buffer.from(JSON.stringify(jsonObjectCar))).then((response) => {
-      //console.log(response.path); // Stampa l'hash del file caricato su IPFS
       mergedCarMetadataCID = response.path;
       console.log(mergedCarMetadataCID);
     });
 
-    // Aggiorniamo il CID del json della macchina aggiornata sul mapping della blockchain 
+    // Unpin of old metadata CID of the car from IPFS
+    ipfs.pin.rm(carCID);
 
-    // Instanziamo il wallet usando la chiave privata dell'indirizzo del contratto 
-    // SetCarCID deve essere chiamata dal contratto stesso e non deve essere pagata dall'utente
+
+    // Update the metadata CID of the car on the respective blockchain mapping
+
+    // Create a Wallet using the private key of the contract address
+    // SetCarCID function must be called and authorized from the contract address itself (not by the user)
 
     const privateKeyContract = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
     const walletContract = new ethers.Wallet(privateKeyContract, provider);
 
-    // Crea un contratto
+    // Create the contract
     const contractToContract = new ethers.Contract(contractAddress, CryptoWheels.abi, walletContract);
     
+    // Call the setCarCID updating function of the contract
     let transaction = await contractToContract.setCarCID(jsonObjectCar.id, hashToBytes32(mergedCarMetadataCID));
     await transaction.wait();
 
-    // Chiamata a myCar per aggiornare gli stati
+    // Call myCar function to update states and graphic components
     await myCar();
-    
-    // Reload della pagina per ricaricare l'immagine
-    //window.location.reload(false);
 
   }
 
@@ -366,7 +369,7 @@ function Garage() {
       ) : (
         <div>
           <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${imageCID}`} alt="Immagine" />
-          <button className="btn btn-primary w-50" onClick={() => applyItem('QmV2M9ug64uux3Vv8cWnC25bhZ8RfQtE68PwRkvjA2B1By')}>
+          <button className="btn btn-primary w-50" onClick={() => applyItem('QmTGojj7cQyzkbnqUrA9PonT1ME3KzdgkU5eG4GYL7sAby')}>
             MONTA PEZZO
           </button>   
         </div>
