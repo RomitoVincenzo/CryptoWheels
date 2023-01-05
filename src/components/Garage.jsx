@@ -113,44 +113,52 @@ function Garage() {
   
   const myCar = async () => {
 
+    // Take the current user account
     const requestAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const account = requestAccounts[0];
     setAddress(account);
 
+    // Get from the contract the current Car CID (in bytes32 format) of the user
     let carID = await contract.getCarID(account);
     console.log(carID)
     let carCIDb32 = await contract.getCarCID(carID);
     console.log(carCIDb32)
 
+    // Check if the user has not already minted is car
     if (carCIDb32 == 0) {
-
       //DO NOT ADD THE IMAGE BEFORE TRANSACTION IS COMPLETED (CRITICAL)
       console.log("IF");
+
+      // Take stock car metadata and create the JsonObject in order to modify it
       const loadedData = JSON.stringify(data);
       const jsonObject = JSON.parse(loadedData);
+      // Insert the account value as owner
       jsonObject.owner = account;
+      // Get the next nft id from the contract and insert as id in metadata
       let nextID = await contract.getNextItemID()
       jsonObject.id = nextID.toNumber();
+      // Insert the current date of minting
       const current = new Date();
       const date = `${current.getDate()}-${current.getMonth() + 1}-${current.getFullYear()}`;
       jsonObject.minting_date = date.toString();
-      // upload of the json to ipfs and get of the hash
+      // Upload of the json to ipfs and get of the hash
       let metadataURICar;
       await ipfs.add(Buffer.from(JSON.stringify(jsonObject))).then((response) => {
         metadataURICar = response.path;
         console.log(metadataURICar);
       });
 
+      // Convert the new metadata CID to bytes32 in order to be correctly stored in the blockchain mapping
       let metadataURICar_b32 = hashToBytes32(metadataURICar);
 
+      // Payment of minting car operation
       const result = await contractWithSigner.payToMintCar(account, metadataURICar, metadataURICar_b32, {
         from: account,
         value: ethers.utils.parseEther('0.05'),
       });
       await result.wait();
-
-      console.log(await contract.fetchMyNFTItems(account));
       
+      // Update the minted state
       const isMinted = await isCarMinted(account);
       setMinted(isMinted);
 
@@ -158,6 +166,7 @@ function Garage() {
 
       console.log("ELSE")
 
+      // Load metadata of the current user car
       let carCID = convertBytes32ToBytes58(carCIDb32);
       let metadataURICar = ipfs.cat(carCID);
 
@@ -165,23 +174,25 @@ function Garage() {
 
       console.log(jsonObject)
 
+      // Take the image CID of the car 
       let carImageCID = jsonObject.ImageCID;
       console.log(carImageCID);
       setImageCID(carImageCID);
 
       console.log("The items you have on your car:");
 
-      //showing equipped items
+      // Showing equipped items
       var headlightsCID = jsonObject.items.headlights;
       var spoilerCID = jsonObject.items.spoiler;
       var rimCID = jsonObject.items.rim;
       var wrapCID = jsonObject.items.wrap;
       var tinted_windowsCID = jsonObject.items.tinted_windows;
       
+      // For each item: if the item is applied on the car show its metadata, else "standard item" string
+
       let metadataURIheadlights = ipfs.cat(headlightsCID);
       if (headlightsCID != "") {
         console.log(Uint8ArrayToJSON(metadataURIheadlights))
-        //show image
       }
       else {
         console.log("Standard headlights")
@@ -189,7 +200,6 @@ function Garage() {
       let metadataURIspoiler = ipfs.cat(spoilerCID);
       if (spoilerCID != "") {
         console.log(Uint8ArrayToJSON(metadataURIspoiler))
-        //show image
       }
       else {
         console.log("Standard spoiler")
@@ -197,7 +207,6 @@ function Garage() {
       let metadataURIrim = ipfs.cat(rimCID);
       if (rimCID != "") {
         console.log(Uint8ArrayToJSON(metadataURIrim))
-        //show image
       }
       else {
         console.log("Standard rim")
@@ -205,7 +214,6 @@ function Garage() {
       let metadataURIwrap = ipfs.cat(wrapCID);
       if (wrapCID != "") {
         console.log(Uint8ArrayToJSON(metadataURIwrap))
-        //show image
       }
       else {
         console.log("Standard wrap")
@@ -218,12 +226,14 @@ function Garage() {
         console.log("No tinted windows")
       }
       
+      // Get metadata CIDs of the user's items
       const CIDs = await contract.getItemToCID(account)
       console.log(CIDs)
       for (let i = 0; i < CIDs.length; i++) {
         console.log(convertBytes32ToBytes58(CIDs[i]))
       }
 
+      // Create the arrays of the metadata CIDs of applied and not applied items
       let myAppliedItems = [spoilerCID, rimCID, wrapCID, tinted_windowsCID, headlightsCID]; 
       let myNotAppliedItems = [];
       for (let i = 0; i < CIDs.length; i++) {
