@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
 import Unbox from './components/Unbox';
 import Garage from './components/Garage';
+//import Marketplace from './components/Marketplace'
 
 const App = () => {
 return (
@@ -17,3 +18,5 @@ return (
 };
 
 export default App;
+
+//<Route exact path="/marketplace" element={<Marketplace />}  />

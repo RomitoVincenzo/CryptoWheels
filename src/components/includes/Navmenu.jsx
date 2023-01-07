@@ -30,6 +30,10 @@ const Navmenu = () => {
               <Icon.CarFront className='me-2 nav-icon'></Icon.CarFront>
               Garage
             </NavLink>
+            <NavLink style={{ marginLeft: "1rem" }} to="/marketplace" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+              <Icon.CarFront className='me-2 nav-icon'></Icon.CarFront>
+              Marketplace
+            </NavLink>
           </Nav>
         </Navbar.Collapse>
        

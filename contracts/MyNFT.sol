@@ -77,7 +77,7 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         uint256 itemId,
         uint256 price,
         uint256 listingPrice //5% of the price
-    ) private {
+    ) public payable {
         require(price > 0, "Price must be at least 1 wei");
         require(
             msg.value >= listingPrice,
