@@ -10,19 +10,22 @@ import "hardhat/console.sol";
 contract CryptoWheels is ERC721, ERC721URIStorage {
     using Counters for Counters.Counter;
 
-    Counters.Counter private _itemIdCounter;
-    //Counters.Counter private _carIdCounter;
-    address payable contractOwner;
+    struct MarketItem {
+        uint256 itemId;
+        address payable seller;
+        address payable owner;
+        uint256 price;
+        bool sold;
+    }
 
+    address payable contractOwner;
+    Counters.Counter private _itemIdCounter;
+    Counters.Counter private _itemsSelling;
     mapping(uint256 => address) public itemToOwner;
     mapping(address => uint256) public ownerToCar;
     mapping(uint256 => bytes32) public carToCID;
     mapping(uint256 => bytes32) public itemToCID;
-
-    /*event MarketItemCreated (
-      uint256 indexed tokenId,
-      address owner
-    );*/
+    mapping(uint256 => MarketItem) public idToMarketItem;
 
     constructor() ERC721("CryptoWheels", "CW") {
         contractOwner = payable(msg.sender);
@@ -31,16 +34,6 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     function _baseURI() internal pure override returns (string memory) {
         return "";
     }
-
-    /*function safeMint(address to, string memory uri) public onlyOwner {
-        uint256 tokenId = _itemIdCounter.current();
-        _itemIdCounter.increment();
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
-        existingURIs[uri] = 1;
-    }*/
-
-    // The following functions are overrides required by Solidity.
 
     function _burn(uint256 tokenId)
         internal
@@ -80,12 +73,42 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         return _itemIdCounter.current() + 1;
     }
 
-    /*function getNextCarID() 
-        public 
-        view 
-        returns (uint256) {
-        return _carIdCounter.current() + 1;
-    } */
+    function createMarketItem(
+        uint256 itemId,
+        uint256 price,
+        uint256 listingPrice //5% of the price
+    ) private {
+        require(price > 0, "Price must be at least 1 wei");
+        require(
+            msg.value >= listingPrice,
+            "Price must be equal to listing price"
+        );
+        idToMarketItem[itemId] = MarketItem(
+            itemId,
+            payable(msg.sender),
+            payable(contractOwner),
+            price,
+            false
+        );
+        _transfer(msg.sender, contractOwner, itemId);
+        itemToOwner[itemId] = contractOwner;
+        _itemsSelling.increment();
+    }
+
+    function PurchaseMarketItem(uint256 itemId) public payable {
+        uint256 price = idToMarketItem[itemId].price;
+        address seller = idToMarketItem[itemId].seller;
+        require(
+            msg.value == price,
+            "Please submit the asking price in order to complete the purchase"
+        );
+        idToMarketItem[itemId].owner = payable(msg.sender);
+        idToMarketItem[itemId].sold = true;
+        _transfer(contractOwner, msg.sender, itemId);
+        payable(seller).transfer(msg.value);
+        itemToOwner[itemId] = msg.sender;
+        _itemsSelling.decrement();
+    }
 
     function payToMint(
         address recipient,
@@ -126,6 +149,20 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
 
     function payToApplyItem() public payable {
         require(msg.value >= 0.05 ether, "Need to pay up!");
+    }
+
+    /* Returns all unsold market items */
+    function fetchMarketItems() public view returns (MarketItem[] memory) {
+        uint256 currentIndex = 0;
+        MarketItem[] memory items = new MarketItem[](_itemsSelling.current());
+        for (uint256 i = 1; i <= _itemIdCounter.current(); i++) {
+            if (itemToOwner[i] == contractOwner) {
+                MarketItem storage currentItem = idToMarketItem[i];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
     }
 
     function fetchMyNFTItems(address adr)
