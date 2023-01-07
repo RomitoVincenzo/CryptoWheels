@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import CryptoWheels from '../artifacts/contracts/MyNFT.sol/CryptoWheels.json';
+import Navmenu from './includes/Navmenu';
 
 const contractAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
 const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -27,15 +28,21 @@ function WalletBalance() {
     };
   
     return (
-      <div className="card text-center">
-        <div className="card-body">
-          <h5 className="card-title">Your Address: {account}</h5>
-          <h5 className="card-title">Your Balance: {balance}</h5>
-          <button className="btn btn-success" onClick={() => getBalance()}>
-            Show My Balance
-          </button>
+      <div>
+        <Navmenu></Navmenu>
+        <div className="container mt-3">
+          <div className="card text-center">
+            <div className="card-body">
+              <h5 className="card-title">Your Address: {account}</h5>
+              <h5 className="card-title">Your Balance: {balance}</h5>
+              <button className="btn btn-success" onClick={() => getBalance()}>
+                Show My Balance
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+      
     );
   };
   

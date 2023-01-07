@@ -5,6 +5,7 @@ import { Buffer } from 'buffer';
 import { create } from 'ipfs-http-client';
 import { } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
+import Navmenu from './includes/Navmenu';
 
 const contractAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
 
@@ -397,7 +398,11 @@ function Garage() {
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div>
+      <Navmenu></Navmenu>
+      <div className="container">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      
       {!minted ? (
         <button className="btn btn-primary w-50" onClick={myCar}>
           START PLAY BUILDING YOUR CAR
@@ -408,7 +413,7 @@ function Garage() {
           <h1> INVENTORY </h1>
           <div className="flex justify-center">
             <div className="p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {
                   nfts.map((nft, i) => (
                   <div key={i} className="border shadow rounded-xl overflow-hidden">
@@ -432,6 +437,9 @@ function Garage() {
       </div>
       )}
     </div>
+      </div>
+    </div>
+    
   );
 
 }
