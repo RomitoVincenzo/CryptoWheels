@@ -419,11 +419,11 @@ function Garage() {
                   <div key={i} className="border shadow rounded-xl overflow-hidden">
                     <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="rounded" />
                     <div className="p-4 bg-black">
-                      <p className="text-2xl font-bold text-white"> #ID - {nft.id}</p>
-                      <p className="text-2xl font-bold text-white"> #ID - {nft.type}</p>
-                      <p className="text-2xl font-bold text-white"> #ID - {nft.rarity}</p>
-                      <p className="text-2xl font-bold text-white"> #ID - {nft.minter}</p>
-                      <p className="text-2xl font-bold text-white"> #ID - {nft.minting_date}</p>
+                      <p className="text-2xl font-bold text-white"> ID - {nft.id}</p>
+                      <p className="text-2xl font-bold text-white"> Type - {nft.type}</p>
+                      <p className="text-2xl font-bold text-white"> Rarity - {nft.rarity}</p>
+                      <p className="text-2xl font-bold text-white"> Minter - {nft.minter}</p>
+                      <p className="text-2xl font-bold text-white"> Minting Date - {nft.minting_date}</p>
                       <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => applyItem(nft.metadata)}>
                         MONTA PEZZO
                       </button>
