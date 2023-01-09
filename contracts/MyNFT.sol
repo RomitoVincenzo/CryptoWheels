@@ -120,6 +120,16 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         _itemsSelling.decrement();
     }
 
+    function removeMarketItem(uint256 itemId) public {
+        require(
+            idToMarketItem[itemId].seller == msg.sender,
+            "You are not the owner of the item"
+        );
+        _transfer(contractOwner, msg.sender, itemId);
+        itemToOwner[itemId] = msg.sender;
+        _itemsSelling.decrement();
+    }
+
     function payToMint(
         address recipient,
         string memory metadataURI, //json cid
