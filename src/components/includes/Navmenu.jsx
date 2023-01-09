@@ -31,7 +31,7 @@ const Navmenu = () => {
               Garage
             </NavLink>
             <NavLink style={{ marginLeft: "1rem" }} to="/marketplace" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
-              <Icon.CarFront className='me-2 nav-icon'></Icon.CarFront>
+              <Icon.Shop className='me-2 nav-icon'></Icon.Shop>
               Marketplace
             </NavLink>
           </Nav>

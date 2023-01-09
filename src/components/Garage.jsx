@@ -20,6 +20,7 @@ const contract = new ethers.Contract(contractAddress, CryptoWheels.abi, provider
 // Contract with user signer 
 const contractWithSigner = contract.connect(signer);
 
+// Import car json template
 import data from '../../json/car.json';
 
 // auth for infura ipfs
@@ -432,8 +433,13 @@ function Garage() {
     // Create the contract
     const contractToContract = new ethers.Contract(contractAddress, CryptoWheels.abi, walletContract);
 
+    // Get the current nonce to be passed to the transaction
+    let currentContractNonce = contractToContract.getContractNonce()
+
     // Call the setCarCID updating function of the contract
-    let transaction = await contractToContract.setCarCID(jsonObjectCar.id, hashToBytes32(mergedCarMetadataCID));
+    let transaction = await contractToContract.setCarCID(jsonObjectCar.id, hashToBytes32(mergedCarMetadataCID), {
+      nonce: currentContractNonce
+    });    
     await transaction.wait();
 
     // Call myCar function to update states and graphic components
@@ -447,13 +453,14 @@ function Garage() {
     let itemMetadataURI = ipfs.cat(itemMetadataCID);
     let jsonObjectItem = await Uint8ArrayToJSON(itemMetadataURI);
     let itemId = jsonObjectItem.id;
+    let itemImageCID = jsonObjectItem.imageCID;
 
     // Compute the listing price from price (5%)
     let listingPrice = price * 5 / 100;
     console.log(listingPrice.toFixed(0));
 
     // Call the createMarketItem function of the contract with (id, price, listingprice)
-    const createMarketItem = await contractWithSigner.createMarketItem(itemId, price, Number(listingPrice.toFixed(0)), {
+    const createMarketItem = await contractWithSigner.createMarketItem(itemId, hashToBytes32(itemImageCID), price, Number(listingPrice.toFixed(0)), {
       from: address,
       value: ethers.utils.parseEther(listingPrice.toFixed(0)),
     });

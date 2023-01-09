@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
 
 contract CryptoWheels is ERC721, ERC721URIStorage {
@@ -12,6 +13,7 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
 
     struct MarketItem {
         uint256 itemId;
+        bytes32 imageCID;
         address payable seller;
         address payable owner;
         uint256 price;
@@ -21,6 +23,7 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     address payable contractOwner;
     Counters.Counter private _itemIdCounter;
     Counters.Counter private _itemsSelling;
+    uint256 private contractNonce = 1;
     mapping(uint256 => address) public itemToOwner;
     mapping(address => uint256) public ownerToCar;
     mapping(uint256 => bytes32) public carToCID;
@@ -42,6 +45,10 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         super._burn(tokenId);
     }
 
+    function getContractNonce() public view returns (uint256) {
+        return contractNonce;
+    }
+
     function getCarCID(uint256 carID) public view returns (bytes32) {
         return carToCID[carID];
     }
@@ -53,6 +60,7 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     function setCarCID(uint256 carID, bytes32 carCID) public {
         require(msg.sender == contractOwner, "You cannot call this function!");
         carToCID[carID] = carCID;
+        contractNonce = contractNonce + 1;
     }
 
     function setCarID(address addr, uint256 carID) public {
@@ -75,6 +83,7 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
 
     function createMarketItem(
         uint256 itemId,
+        bytes32 imageCID,
         uint256 price,
         uint256 listingPrice //5% of the price
     ) public payable {
@@ -85,6 +94,7 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         );
         idToMarketItem[itemId] = MarketItem(
             itemId,
+            imageCID,
             payable(msg.sender),
             payable(contractOwner),
             price,
@@ -95,11 +105,11 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         _itemsSelling.increment();
     }
 
-    function PurchaseMarketItem(uint256 itemId) public payable {
+    function purchaseMarketItem(uint256 itemId) public payable {
         uint256 price = idToMarketItem[itemId].price;
         address seller = idToMarketItem[itemId].seller;
         require(
-            msg.value == price,
+            msg.value == price * (1 ether),
             "Please submit the asking price in order to complete the purchase"
         );
         idToMarketItem[itemId].owner = payable(msg.sender);

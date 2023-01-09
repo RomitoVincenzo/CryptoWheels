@@ -94,10 +94,6 @@ function NFTMint() {
       await result.wait();
       //console.log(result);
       console.log(jsonObject)
-      //DA RIMUOVERE E INSERIRE IN MYNFTS.JSX
-      //const newnft = contract.fetchMyNFTs(addr)
-      //console.log(newnft)
-      //............................
 
       setSuccess(true);
     } catch (error) {
