@@ -55,3 +55,42 @@ body{
     background-color: gold !important;
 }
 
+.btn-primary{
+    background: #0B0F3F !important;
+    border: 1px solid #0B0F3F !important;
+}
+
+.btn-primary:hover{
+    color: #0B0F3F !important;
+    background-color: gold !important;
+    border: 1px solid gold !important;
+}
+
+.btn-outline-primary{
+    background: white !important;
+    color: #0B0F3F !important;
+    border: 1px solid #0B0F3F !important;
+}
+
+.btn-outline-primary:hover{
+    background: #0B0F3F !important;
+    color: white !important;
+}
+
+.box{
+    border-left: 2px solid #0B0F3F !important;
+    border-right: 2px solid #0B0F3F !important;
+    border-top: 2px solid #0B0F3F !important;
+    border-bottom: 5px solid #0B0F3F !important;
+    border-radius: 10px !important;
+}
+
+.image-container{
+    height: 300px !important;
+}
+
+.img-sm{
+    height: 180px !important;
+    width: auto !important;
+}
+

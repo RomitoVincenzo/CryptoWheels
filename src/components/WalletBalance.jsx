@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import CryptoWheels from '../artifacts/contracts/MyNFT.sol/CryptoWheels.json';
 import Navmenu from './includes/Navmenu';
 
-const contractAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
+const contractAddress = '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512';
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 // get the end user
 const signer = provider.getSigner();
@@ -31,14 +31,16 @@ function WalletBalance() {
       <div>
         <Navmenu></Navmenu>
         <div className="container mt-3">
-          <div className="card text-center">
+          <div className="col-8 mx-auto">
+          <div className="card text-center box">
             <div className="card-body">
               <h5 className="card-title">Your Address: {account}</h5>
               <h5 className="card-title">Your Balance: {balance}</h5>
-              <button className="btn btn-success" onClick={() => getBalance()}>
+              <button className="btn btn-primary" onClick={() => getBalance()}>
                 Show My Balance
               </button>
             </div>
+          </div>
           </div>
         </div>
       </div>

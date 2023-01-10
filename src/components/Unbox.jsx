@@ -37,9 +37,9 @@ const fetchUnboxedItem = async () => {
 
 function Unbox() {
   return (
-    <div>
+    <div style={{background:"#FCFCFC"}} className="">
       <WalletBalance />
-      <h1 style={{ textAlign: "center" }}>UNBOX YOUR CAR ITEM</h1>
+      <h1 style={{ textAlign: "center" }} className="my-4">UNBOX YOUR CAR ITEM</h1>
       <div className="container" style={{ display: "flex", justifyContent: "center" }}>
         <div className="row" style={{ margin: "auto" }}>
           <div className="col-sm" style={{ margin: "auto" }}>
@@ -107,7 +107,7 @@ function NFTMint() {
   };
 
   return (
-    <div className="card" style={{ width: '18rem' }}>
+    <div className="card box p-3" style={{ width: '18rem' }}>
       <img className="card-img-top" src={'img/mint.PNG'}></img>
       <div className="card-body text-center">
         {loading ? (
