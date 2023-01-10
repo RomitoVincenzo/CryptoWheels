@@ -104,9 +104,12 @@ function Marketplace() {
   }
 
   const removeItem = async (itemId) => {
-    // Call the contract function to purchase the item
-    const removeTransaction = await contractWithSigner.removeMarketItem(itemId, {
-      from: address,
+    const privateKeyContract = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+    const walletContract = new ethers.Wallet(privateKeyContract, provider);
+    const contractToContract = new ethers.Contract(contractAddress, CryptoWheels.abi, walletContract);
+    let currentContractNonce = contractToContract.getContractNonce()
+    let removeTransaction = await contractToContract.removeMarketItem(itemId, address, {
+      nonce: currentContractNonce
     });
     await removeTransaction.wait();
 

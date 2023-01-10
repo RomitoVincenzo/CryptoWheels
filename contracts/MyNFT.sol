@@ -63,10 +63,10 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         contractNonce = contractNonce + 1;
     }
 
-    function setCarID(address addr, uint256 carID) public {
+    /*function setCarID(address addr, uint256 carID) public {
         require(msg.sender == contractOwner, "You cannot call this function!");
         ownerToCar[addr] = carID;
-    }
+    }*/
 
     function tokenURI(uint256 tokenId)
         public
@@ -120,14 +120,20 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         _itemsSelling.decrement();
     }
 
-    function removeMarketItem(uint256 itemId) public {
-        require(
+    function removeMarketItem(uint256 itemId, address seller) public {
+        /*require(
             idToMarketItem[itemId].seller == msg.sender,
             "You are not the owner of the item"
+        );*/
+        require(msg.sender == contractOwner, "You cannot call this function!");
+        require(
+            idToMarketItem[itemId].seller == seller,
+            "This is not the owner of the NFT"
         );
-        _transfer(contractOwner, msg.sender, itemId);
-        itemToOwner[itemId] = msg.sender;
+        _transfer(contractOwner, seller, itemId);
+        itemToOwner[itemId] = seller;
         _itemsSelling.decrement();
+        contractNonce = contractNonce + 1;
     }
 
     function payToMint(

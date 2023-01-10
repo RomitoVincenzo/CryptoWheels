@@ -130,19 +130,19 @@ function Garage() {
     PurePopup.prompt({
       title: 'Selling #' + jsonObjectItem.id + ' Token (' + jsonObjectItem.type + ':' + jsonObjectItem.rarity + ')',
       buttons: {
-          okButton: 'Submit',
-          cancelButton: 'Cancel'
+        okButton: 'Submit',
+        cancelButton: 'Cancel'
       },
       inputs: {
-          price: 'Price:',
+        price: 'Price:',
       }
-    }, async function(result) {  
+    }, async function (result) {
       if (result.confirm == 'okButton') {
-          if (result.price == null || result.price == "") {PurePopup.alert({title: "Operation Failed: Price must be a valid value!"})}
-          else {await sellItem(nftMetadata, result.price)}
-      } else if (result.confirm == 'cancelButton') {        
-          PurePopup.alert({title: 'No NFTs put on the marketplace'});
-      }     
+        if (result.price == null || result.price == "") { PurePopup.alert({ title: "Operation Failed: Price must be a valid value!" }) }
+        else { await sellItem(nftMetadata, result.price) }
+      } else if (result.confirm == 'cancelButton') {
+        PurePopup.alert({ title: 'No NFTs put on the marketplace' });
+      }
     });
   }
 
@@ -202,9 +202,9 @@ function Garage() {
 
       // Convert the new metadata CID to bytes32 in order to be correctly stored in the blockchain mapping
       let metadataURICar_b32 = hashToBytes32(metadataURICar);
-      
+
       try {
-      // Payment of minting car operation
+        // Payment of minting car operation
         const result = await contractWithSigner.payToMintCar(account, metadataURICar, metadataURICar_b32, {
           from: account,
           value: ethers.utils.parseEther('0.05'),
@@ -282,7 +282,7 @@ function Garage() {
       // Get metadata CIDs of the user's items
       let CIDs = await contract.getMyItemsCIDs(account)
       CIDs = CIDs.map(cid => convertBytes32ToBytes58(cid))
-      
+
       console.log(CIDs);
       // Create the arrays of the metadata CIDs of applied and not applied items
       let myNotAppliedItems = [];
@@ -290,7 +290,7 @@ function Garage() {
         let notAppliedCID = CIDs[i]
         console.log(notAppliedCID)
         console.log(myAppliedItems)
-        if (!myAppliedItems.includes(notAppliedCID  )) {
+        if (!myAppliedItems.includes(notAppliedCID)) {
           myNotAppliedItems.push(notAppliedCID);
         }
       }
@@ -329,21 +329,24 @@ function Garage() {
     // Take the current metadata of the user car
     let carID = await contract.getCarID(address);
     let carCIDb32 = await contract.getCarCID(carID);
-    let carCID = convertBytes32ToBytes58(carCIDb32);
-    let metadataURICar = ipfs.cat(carCID);
-    let jsonObjectCar = await Uint8ArrayToJSON(metadataURICar);
 
+    let carCID = convertBytes32ToBytes58(carCIDb32);
+    console.log(carCID);
+    let metadataURICar = ipfs.cat(carCID);
+    console.log(metadataURICar);
+    let jsonObjectCar = await Uint8ArrayToJSON(metadataURICar);
+    console.log(jsonObjectCar);
     const loadedDataDefaultCar = JSON.stringify(data);
     const jsonObjectDefaultCar = JSON.parse(loadedDataDefaultCar);
 
     if (operation == "apply") {
-    // Substitute the current metadata CID of the specific type with the new one in the car metadata (item application)
+      // Substitute the current metadata CID of the specific type with the new one in the car metadata (item application)
       jsonObjectCar.items[itemType] = itemMetadataCID;
     } else {
       // Substitute the current metadata CID of the specific type with the default one in the car metadata (item disapplication)
-      if (itemType == "headlights") {jsonObjectCar.items[itemType] = jsonObjectDefaultCar.headlights}
-      else if (itemType == "spoiler") {jsonObjectCar.items[itemType] = jsonObjectDefaultCar.spoiler}
-      else {jsonObjectCar.items[itemType] = ""}
+      if (itemType == "headlights") { jsonObjectCar.items[itemType] = jsonObjectDefaultCar.headlights }
+      else if (itemType == "spoiler") { jsonObjectCar.items[itemType] = jsonObjectDefaultCar.spoiler }
+      else { jsonObjectCar.items[itemType] = "" }
     }
 
     // Take the metadata CID of the applied and not applied items of the car
@@ -354,6 +357,11 @@ function Garage() {
     var tinted_windowsCID = jsonObjectCar.items.tinted_windows;
 
     // If an item is applied, push its image CID in the listItemsImageCIDs array
+    console.log(headlightsCID);
+    console.log(spoilerCID);
+    console.log(rimCID);
+    console.log(wrapCID);
+    console.log(tinted_windowsCID);
 
     let listItemsImageCIDs = [];
 
@@ -439,7 +447,7 @@ function Garage() {
     // Call the setCarCID updating function of the contract
     let transaction = await contractToContract.setCarCID(jsonObjectCar.id, hashToBytes32(mergedCarMetadataCID), {
       nonce: currentContractNonce
-    });    
+    });
     await transaction.wait();
 
     // Call myCar function to update states and graphic components
@@ -448,7 +456,7 @@ function Garage() {
   }
 
   const sellItem = async (itemMetadataCID, price) => {
-  
+
     // Take the input item metadata
     let itemMetadataURI = ipfs.cat(itemMetadataCID);
     let jsonObjectItem = await Uint8ArrayToJSON(itemMetadataURI);
@@ -473,7 +481,7 @@ function Garage() {
 
     // Show alert "Item correctly listed!"
     //alert('Item correctly listed!')
-    await PurePopup.alert({title: 'Item correctly listed'});
+    await PurePopup.alert({ title: 'Item correctly listed' });
 
     // Refresh page
     //window.location.reload(false);
@@ -484,72 +492,72 @@ function Garage() {
     <div>
       <Navmenu></Navmenu>
       <div className="container">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      
-      {!minted ? (
-        <button className="btn btn-primary w-50" onClick={myCar}>
-          START PLAY BUILDING YOUR CAR
-        </button>
-      ) : (
-        <div>
-          <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${imageCID}`} alt="Immagine" />
-          <h1> APPLIED ITEMS</h1>
-          <div className="flex justify-center">
-            <div className="p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {
-                  appliedNFTs.map((nft, i) => (
-                  <div key={i} className="border shadow rounded-xl overflow-hidden">
-                    <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="rounded" />
-                    <div className="p-4 bg-black">
-                      <p className="text-2xl font-bold text-white"> ID - {nft.id}</p>
-                      <p className="text-2xl font-bold text-white"> Type - {nft.type}</p>
-                      <p className="text-2xl font-bold text-white"> Rarity - {nft.rarity}</p>
-                      <p className="text-2xl font-bold text-white"> Minter - {nft.minter}</p>
-                      <p className="text-2xl font-bold text-white"> Minting Date - {nft.minting_date}</p>
-                      <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => itemManagement(nft.metadata, "remove")}>
-                        Remove
-                      </button>
-                    </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+
+          {!minted ? (
+            <button className="btn btn-primary w-50" onClick={myCar}>
+              START PLAY BUILDING YOUR CAR
+            </button>
+          ) : (
+            <div>
+              <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${imageCID}`} alt="Immagine" />
+              <h1> APPLIED ITEMS</h1>
+              <div className="flex justify-center">
+                <div className="p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {
+                      appliedNFTs.map((nft, i) => (
+                        <div key={i} className="border shadow rounded-xl overflow-hidden">
+                          <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="rounded" />
+                          <div className="p-4 bg-black">
+                            <p className="text-2xl font-bold text-white"> ID - {nft.id}</p>
+                            <p className="text-2xl font-bold text-white"> Type - {nft.type}</p>
+                            <p className="text-2xl font-bold text-white"> Rarity - {nft.rarity}</p>
+                            <p className="text-2xl font-bold text-white"> Minter - {nft.minter}</p>
+                            <p className="text-2xl font-bold text-white"> Minting Date - {nft.minting_date}</p>
+                            <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => itemManagement(nft.metadata, "remove")}>
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    }
+                  </div>
                 </div>
-                ))
-              }
-            </div>
-          </div>
-        </div>
-          <h1> NOT APPLIED ITEMS </h1>
-          <div className="flex justify-center">
-            <div className="p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {
-                  notAppliedNFTs.map((nft, i) => (
-                  <div key={i} className="border shadow rounded-xl overflow-hidden">
-                    <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="rounded" />
-                    <div className="p-4 bg-black">
-                      <p className="text-2xl font-bold text-white"> ID - {nft.id}</p>
-                      <p className="text-2xl font-bold text-white"> Type - {nft.type}</p>
-                      <p className="text-2xl font-bold text-white"> Rarity - {nft.rarity}</p>
-                      <p className="text-2xl font-bold text-white"> Minter - {nft.minter}</p>
-                      <p className="text-2xl font-bold text-white"> Minting Date - {nft.minting_date}</p>
-                      <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => itemManagement(nft.metadata)}>
-                        Mount
-                      </button>
-                      <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => showInputPopup(nft.metadata)}>
-                        Sell
-                      </button>
-                    </div>
+              </div>
+              <h1> NOT APPLIED ITEMS </h1>
+              <div className="flex justify-center">
+                <div className="p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {
+                      notAppliedNFTs.map((nft, i) => (
+                        <div key={i} className="border shadow rounded-xl overflow-hidden">
+                          <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="rounded" />
+                          <div className="p-4 bg-black">
+                            <p className="text-2xl font-bold text-white"> ID - {nft.id}</p>
+                            <p className="text-2xl font-bold text-white"> Type - {nft.type}</p>
+                            <p className="text-2xl font-bold text-white"> Rarity - {nft.rarity}</p>
+                            <p className="text-2xl font-bold text-white"> Minter - {nft.minter}</p>
+                            <p className="text-2xl font-bold text-white"> Minting Date - {nft.minting_date}</p>
+                            <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => itemManagement(nft.metadata)}>
+                              Mount
+                            </button>
+                            <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => showInputPopup(nft.metadata)}>
+                              Sell
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    }
+                  </div>
                 </div>
-                ))
-              }
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
-      )}
     </div>
-      </div>
-    </div>
-    
+
   );
 
 }
