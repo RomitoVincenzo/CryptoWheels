@@ -344,8 +344,8 @@ function Garage() {
       jsonObjectCar.items[itemType] = itemMetadataCID;
     } else {
       // Substitute the current metadata CID of the specific type with the default one in the car metadata (item disapplication)
-      if (itemType == "headlights") { jsonObjectCar.items[itemType] = jsonObjectDefaultCar.headlights }
-      else if (itemType == "spoiler") { jsonObjectCar.items[itemType] = jsonObjectDefaultCar.spoiler }
+      if (itemType == "headlights") { jsonObjectCar.items[itemType] = jsonObjectDefaultCar.items.headlights }
+      else if (itemType == "spoiler") { jsonObjectCar.items[itemType] = jsonObjectDefaultCar.items.spoiler  }
       else { jsonObjectCar.items[itemType] = "" }
     }
 
