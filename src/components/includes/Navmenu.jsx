@@ -1,6 +1,7 @@
 import React from 'react'
 import { Nav, Navbar } from 'react-bootstrap';
 import logo from '../../../assets/images/logo.png';
+import logoCW from '../../../assets/images/logo_cryptowheels.png';
 import CustomCss from "../../../css/custom.css";
 import * as Icon from 'react-bootstrap-icons';
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
@@ -9,13 +10,13 @@ import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 const Navmenu = () => {
   return (
     <Navbar style={{ fontSize: "1rem",background:"#0B0F3F", }} bg="" variant="dark" expand="sm">
-        <NavLink to="/" style={{ fontSize: "1.5rem", marginLeft: "1rem" }} className="navbar-brand">
+        <NavLink to="/" style={{ fontSize: "1.5rem", marginLeft: "1rem" }} className="navbar-brand text-gold fw-bold">
             <img
-                src={logo}
-                width="35"
-                height="35"
+                src={logoCW}
+                width="30"
+                height="30"
                 className="d-inline-block me-1"
-                alt="React Bootstrap logo"
+                alt="Cryptowheels Logo"
             />
             CryptoWheels
         </NavLink>

@@ -1,7 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
 
 body{
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'Montserrat', sans-serif;
 }
 
 
@@ -39,6 +40,22 @@ body{
 
 .text-gold{
     color: gold !important;
+}
+
+.bg-app{
+    background: #0B0F3F !important;
+}
+
+.bg-gold{
+    background: gold !important;
+}
+
+.text-app{
+    color: #0B0F3F !important;
+}
+
+.col-heading{
+    border-radius: 10px !important;
 }
 
 .big-heading{
@@ -81,16 +98,50 @@ body{
     border-left: 2px solid #0B0F3F !important;
     border-right: 2px solid #0B0F3F !important;
     border-top: 2px solid #0B0F3F !important;
-    border-bottom: 5px solid #0B0F3F !important;
+    border-bottom: 8px solid #0B0F3F !important;
     border-radius: 10px !important;
+    background: white !important;
 }
 
 .image-container{
-    height: 300px !important;
+    height: 550px !important;
 }
 
 .img-sm{
     height: 180px !important;
     width: auto !important;
 }
+
+.side-cols{
+    height: 600px !important;
+    overflow-y: scroll;
+}
+
+.hoverable{
+    cursor: pointer;
+}
+
+.hoverable:hover{
+    border: 3px solid #0B0F3F !important;
+    background: #F5F5F5 !important;
+    transition: 50ms ease all;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 0px;
+    
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #0B0F3F;
+    border-radius: 10px;
+  }
 
