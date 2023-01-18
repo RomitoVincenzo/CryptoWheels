@@ -492,7 +492,12 @@ function Garage() {
   return (
     <div style={{background:"#F6F6F6"}}>
       <Navmenu></Navmenu>
-      <div className="container">
+      {!minted ? (
+            <button className="btn btn-primary w-50 mt-4" onClick={myCar}>
+              START PLAY BUILDING YOUR CAR
+            </button>
+          ) : (
+            <div className="container">
         <div className="row my-4">
           <div className="col-3">
           <h2 className='text-center text-white bg-app p-2 col-heading fs-4'> Applied Items </h2>
@@ -573,7 +578,10 @@ function Garage() {
                                   <span className="badge bg-app text-white px-3 fs-6">{nft.minting_date}</span>
                                 </li>
                               </ul>
-                              <button className="my-1 btn btn-primary col-12 mt-3" onClick={() => showInputPopup(nft.metadata)}>
+                              <button className="btn btn-success col-12 mt-3" onClick={() => itemManagement(nft.metadata)}>
+                                Mount
+                              </button>
+                              <button className="my-1 btn btn-primary col-12" onClick={() => showInputPopup(nft.metadata)}>
                                 Sell
                               </button>
                           </div>
@@ -583,21 +591,10 @@ function Garage() {
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-
-          {!minted ? (
-            <button className="btn btn-primary w-50 mt-4" onClick={myCar}>
-              START PLAY BUILDING YOUR CAR
-            </button>
-          ) : (
-            <div>
-              
-              
-              
-            </div>
-          )}
-        </div>
+       
       </div>
+          )}
+      
     </div>
 
   );
