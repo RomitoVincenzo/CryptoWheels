@@ -120,7 +120,7 @@ function Marketplace() {
   return (
     <div style={{background:"#F6F6F6"}}>
       <Navmenu></Navmenu>
-      <div className="container py-5">
+      <div className="container py-5 vh-100">
       <h1 className='fw-bold'> My Listed Items</h1>
         <div className="row mt-4">
             {

@@ -253,9 +253,9 @@ function Home()
     <div style={{ backgroundColor: 'black' }} className='vh-100' >
       <Navmenu></Navmenu>
       <div className="container">
-        <div className="row align-items-center">
-          <div className="col-lg-6 col-md-6 col-12 mt-5">
-            <img src={logoCW} alt="" className='img-fluid my-auto' />
+        <div className="row align-items-center mt-5">
+          <div className="col-lg-6 col-md-6 col-12 mt-5 text-center" style={{ height:"70%" }}>
+            <img src={logoCW} alt="" className='my-auto main-logo'  />
             {/* <Player
               autoplay
               loop

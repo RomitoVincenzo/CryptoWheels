@@ -490,12 +490,12 @@ function Garage() {
   }
 
   return (
-    <div style={{background:"#F6F6F6"}}>
+    <div style={{background:"#F6F6F6"}} className="vh-100 pb-5">
       <Navmenu></Navmenu>
       {!minted ? (
-            <button className="btn btn-primary w-50 mt-4" onClick={myCar}>
-              START PLAY BUILDING YOUR CAR
-            </button>
+            <div className="container py-5">
+              <div className="alert alert-danger">Oops! We did not find your car. Are you sure you have minted it?</div>
+            </div>
           ) : (
             <div className="container">
         <div className="row my-4">
@@ -559,7 +559,7 @@ function Garage() {
             <div className='side-cols p-1'>
             {
                       notAppliedNFTs.map((nft, i) => (
-                        <div key={i} className="border shadow rounded-xl overflow-hidden box my-3 p-2">
+                        <div key={i} className="overflow-hidden box my-3 p-2">
                           <div className="text-center">
                             <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="rounded img-thumbnail" />
                             </div>
