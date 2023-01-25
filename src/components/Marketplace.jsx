@@ -118,52 +118,68 @@ function Marketplace() {
   }
 
   return (
-    <div>
+    <div style={{background:"#F6F6F6"}}>
       <Navmenu></Navmenu>
-      <h1> MY LISTED ITEMS</h1>
-      <div className="flex justify-center">
-        <div className="p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="container py-5 vh-100">
+      <h1 className='fw-bold'> My Listed Items</h1>
+        <div className="row mt-4">
             {
               myListedNFTs.map((nft, i) => (
-                <div key={i} className="border shadow rounded-xl overflow-hidden">
-                  <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} width="500" className="rounded" />
-                  <div className="p-4 bg-black">
-                    <p className="text-2xl font-bold text-white"> ID - {nft.itemId}</p>
-                    <p className="text-2xl font-bold text-white"> Seller - {nft.seller}</p>
-                    <p className="text-2xl font-bold text-white"> PRICE - {nft.price}</p>
-                    <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => removeItem(nft.itemId)}>
-                      Remove
-                    </button>
+                <div key={i} className="col-3 my-2 overflow-hidden ">
+                  <div className="box p-3 hoverable">
+                    <div className="text-center">
+                      <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="img-thumbnail" />
+                    </div>
+                    <div className="py-3 overflow-hidden">
+                      <div className="row">
+                        <div className="col-6">
+                          <p className="fw-bolder fs-3 text-app"> ID # {nft.itemId}</p>
+                        </div>
+                        <div className="col-6">
+                          <p className="fw-bold fst-italic fs-3 text-success text-end"> {nft.price} ETH</p>
+                        </div>
+                      </div>
+                      
+                      {/* <p className="font-bold"> Seller - {nft.seller}</p> */}
+                      
+                      <button className="btn btn-danger col-12" onClick={() => removeItem(nft.itemId)}>
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
             }
-          </div>
         </div>
-      </div>
-      <h1> LOADED MARKETPLACE ITEMS</h1>
-      <div className="flex justify-center">
-        <div className="p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {
-              listedNFTs.map((nft, i) => (
-                <div key={i} className="border shadow rounded-xl overflow-hidden">
-                  <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} width="500" className="rounded" />
-                  <div className="p-4 bg-black">
-                    <p className="text-2xl font-bold text-white"> ID - {nft.itemId}</p>
-                    <p className="text-2xl font-bold text-white"> Seller - {nft.seller}</p>
-                    <p className="text-2xl font-bold text-white"> PRICE - {nft.price}</p>
-                    <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => purchaseItem(nft.itemId, nft.price)}>
-                      Purchase
-                    </button>
+        <h1 className='fw-bold mt-4'> Marketplace Items</h1>
+        <div className="row  mt-4">
+              {
+                listedNFTs.map((nft, i) => (
+                  <div key={i} className="col-3 my-2 overflow-hidden ">
+                    <div className="hoverable box p-3">
+                    <div className="text-center">
+                      <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="img-thumbnail" />
+                    </div>
+                    <div className="py-3 overflow-hidden">
+                      <div className="row">
+                        <div className="col-6">
+                          <p className="fw-bolder fs-3 text-app"> ID # {nft.itemId}</p>
+                        </div>
+                        <div className="col-6">
+                          <p className="fw-bold fst-italic fs-3 text-success text-end"> {nft.price} ETH</p>
+                        </div>
+                      </div>
+                      <button className="btn btn-primary col-12" onClick={() => purchaseItem(nft.itemId, nft.price)}>
+                        Purchase
+                      </button>
+                    </div>
+                    </div>
                   </div>
-                </div>
-              ))
-            }
-          </div>
+                ))
+              }
         </div>
       </div>
+      
     </div>
   )
 }

@@ -98,6 +98,8 @@ function Garage() {
   const [address, setAddress] = useState();
   const [notAppliedNFTs, setNotAppliedNFTs] = useState([])
   const [appliedNFTs, setAppliedNFTs] = useState([])
+  const [mountLoading, setMountLoading] = useState(false)
+  const [removeLoading, setRemoveLoading] = useState(false)
 
   // Effect needed in order to update the page when the car is minted (end of myCar:if-condition)
   useEffect(() => {
@@ -311,6 +313,7 @@ function Garage() {
 
   const itemManagement = async (itemMetadataCID, operation = "apply") => {
 
+    if (operation == "remove") {setRemoveLoading(true)}
     if (operation == "apply") {
       // Transaction payment of the item application
       const result = await contractWithSigner.payToApplyItem({
@@ -319,6 +322,7 @@ function Garage() {
       });
       console.log(result)
       await result.wait();
+      setMountLoading(true)
     }
 
     // Take the input item metadata
@@ -451,6 +455,9 @@ function Garage() {
     });
     await transaction.wait();
 
+    if (operation == "remove") {setRemoveLoading(false)}
+    if (operation == "apply") {setMountLoading(false)}
+
     // Call myCar function to update states and graphic components
     await myCar();
 
@@ -490,73 +497,103 @@ function Garage() {
   }
 
   return (
-    <div>
+    <div style={{background:"#F6F6F6"}} className="vh-100 pb-5">
       <Navmenu></Navmenu>
-      <div className="container">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-
-          {!minted ? (
-            <button className="btn btn-primary w-50" onClick={myCar}>
-              START PLAY BUILDING YOUR CAR
-            </button>
+      {!minted ? (
+            <div className="container py-5">
+              <div className="alert alert-danger">Oops! We did not find your car. Are you sure you have minted it?</div>
+            </div>
           ) : (
-            <div>
-              <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${imageCID}`} alt="Immagine" />
-              <h1> APPLIED ITEMS</h1>
-              <div className="flex justify-center">
-                <div className="p-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {
-                      appliedNFTs.map((nft, i) => (
-                        <div key={i} className="border shadow rounded-xl overflow-hidden">
-                          <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="rounded" />
-                          <div className="p-4 bg-black">
-                            <p className="text-2xl font-bold text-white"> ID - {nft.id}</p>
-                            <p className="text-2xl font-bold text-white"> Type - {nft.type}</p>
-                            <p className="text-2xl font-bold text-white"> Rarity - {nft.rarity}</p>
-                            <p className="text-2xl font-bold text-white"> Minter - {nft.minter}</p>
-                            <p className="text-2xl font-bold text-white"> Minting Date - {nft.minting_date}</p>
-                            <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => itemManagement(nft.metadata, "remove")}>
+            <div className="container">
+        <div className="row my-4">
+          <div className="col-3">
+          <h2 className='text-center text-white bg-app p-2 col-heading fs-4'> Applied Items </h2>
+            <div className="side-cols">
+            {
+                        appliedNFTs.map((nft, i) => (
+                          <div key={i} className="overflow-hidden box my-3 p-2">
+                            <div className="text-center">
+                            <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="rounded img-thumbnail" />
+                            </div>
+                            <div className="py-3 overflow-hidden">
+                            <ul className="list-group">
+                              <li className="list-group-item d-flex justify-content-between align-items-center">
+                                Type
+                                <span className="badge bg-app text-white px-3 fs-6">{nft.type}</span>
+                              </li>
+                              <li className="list-group-item d-flex justify-content-between align-items-center">
+                                Rarity
+                                <span className="badge bg-app text-white px-3 fs-6">{nft.rarity}</span>
+                              </li>
+                              <li className="list-group-item d-flex justify-content-between align-items-center">
+                                Minted On
+                                <span className="badge bg-app text-white px-3 fs-6">{nft.minting_date}</span>
+                              </li>
+                            </ul>
+                            <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 btn btn-danger col-12" onClick={() => itemManagement(nft.metadata, "remove")}>
                               Remove
                             </button>
+                            </div>
                           </div>
-                        </div>
-                      ))
-                    }
-                  </div>
-                </div>
-              </div>
-              <h1> NOT APPLIED ITEMS </h1>
-              <div className="flex justify-center">
-                <div className="p-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {
-                      notAppliedNFTs.map((nft, i) => (
-                        <div key={i} className="border shadow rounded-xl overflow-hidden">
-                          <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="rounded" />
-                          <div className="p-4 bg-black">
-                            <p className="text-2xl font-bold text-white"> ID - {nft.id}</p>
-                            <p className="text-2xl font-bold text-white"> Type - {nft.type}</p>
-                            <p className="text-2xl font-bold text-white"> Rarity - {nft.rarity}</p>
-                            <p className="text-2xl font-bold text-white"> Minter - {nft.minter}</p>
-                            <p className="text-2xl font-bold text-white"> Minting Date - {nft.minting_date}</p>
-                            <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => itemManagement(nft.metadata)}>
-                              Mount
-                            </button>
-                            <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 rounded" onClick={() => showInputPopup(nft.metadata)}>
-                              Sell
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    }
-                  </div>
-                </div>
-              </div>
+                        ))
+                      }
             </div>
-          )}
-        </div>
+          </div>
+          <div className="col-6 text-center">
+            <h2 className='text-white bg-app p-2 col-heading fs-4'> Your Car</h2>
+            <div className="box my-3">
+              {!removeLoading && !mountLoading ? (
+                <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${imageCID}`} alt="Immagine" className='img-fluid image-container' />
+                ):(              
+                <>
+                  <div className="spinner-border" role="status" style={{position: 'relative', fontSize: '25px', height: '80px', width: '80px', marginTop: '5%'}}>
+                    <span className="sr-only"></span>
+                  </div>
+                  <p style={{marginTop: '5%', fontSize: '30px'}}>Generating your new car...</p>
+                </>
+              )}       
+            </div>
+          </div>
+          <div className="col-3 ">
+          <h2 className='text-center text-white bg-app p-2 col-heading fs-4'> Unapplied Items </h2>
+            <div className='side-cols p-1'>
+            {
+                      notAppliedNFTs.map((nft, i) => (
+                        <div key={i} className="overflow-hidden box my-3 p-2">
+                          <div className="text-center">
+                            <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${nft.imageCID}`} className="rounded img-thumbnail" />
+                            </div>
+                            <div className="py-3 overflow-hidden">
+                              <ul className="list-group">
+                                <li className="list-group-item d-flex justify-content-between align-items-center">
+                                  Type
+                                  <span className="badge bg-app text-white px-3 fs-6">{nft.type}</span>
+                                </li>
+                                <li className="list-group-item d-flex justify-content-between align-items-center">
+                                  Rarity
+                                  <span className="badge bg-app text-white px-3 fs-6">{nft.rarity}</span>
+                                </li>
+                                <li className="list-group-item d-flex justify-content-between align-items-center">
+                                  Minted On
+                                  <span className="badge bg-app text-white px-3 fs-6">{nft.minting_date}</span>
+                                </li>
+                              </ul>
+                              <button className="btn btn-success col-12 mt-3" onClick={() => itemManagement(nft.metadata)}>
+                              Mount
+                              </button>
+                              <button className="my-1 btn btn-primary col-12" onClick={() => showInputPopup(nft.metadata)}>
+                              Sell
+                              </button>      
+                          </div>
+                        </div>
+                      ))
+                    }
+            </div>
+          </div>
+        </div>     
       </div>
+          )}
+      
     </div>
 
   );

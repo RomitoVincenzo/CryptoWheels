@@ -5,6 +5,8 @@ import CryptoWheels from '../artifacts/contracts/MyNFT.sol/CryptoWheels.json';
 import { Buffer } from 'buffer';
 import { create } from 'ipfs-http-client';
 import { } from 'react-bootstrap';
+import Modal from 'react-awesome-modal';
+
 
 import { hashToBytes32, convertBytes32ToBytes58 } from './Garage';
 import axios from 'axios';
@@ -55,6 +57,10 @@ function NFTMint() {
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [unboxedCID, setUnboxedCID] = useState("")
+  const [unboxedType, setUnboxedType] = useState("")
+  const [unboxedRarity, setUnboxedRarity] = useState("")
 
   const mintToken = async () => {
 
@@ -95,7 +101,11 @@ function NFTMint() {
       //console.log(result);
       console.log(jsonObject)
 
+      setUnboxedCID(jsonObject.imageCID)
+      setUnboxedType(jsonObject.type)
+      setUnboxedRarity(jsonObject.rarity)
       setSuccess(true);
+      setIsModalVisible(true)
     } catch (error) {
       console.error(error);
       setSuccess(false);
@@ -123,9 +133,30 @@ function NFTMint() {
           </button>
         )}
         {success && (
-          <p className="mt-2 text-success">
-            NFT Unboxed! Go on your garage to look at it!
-          </p>
+          
+          <Modal visible={isModalVisible} width="400" height="550" effect="fadeInUp" onClickAway={() => setIsModalVisible(false)}>
+              
+            <div className="box">
+              <div className="text-center">
+              <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${unboxedCID}`} className="rounded img-thumbnail" />
+              </div>
+              <div className="py-3 overflow-hidden">
+              <ul className="list-group">
+                <li className="list-group-item d-flex justify-content-between align-items-center">
+                  Type
+                  <span className="badge bg-app text-white px-3 fs-6">{unboxedType}</span>
+                </li>
+                <li className="list-group-item d-flex justify-content-between align-items-center">
+                  Rarity
+                  <span className="badge bg-app text-white px-3 fs-6">{unboxedRarity}</span>
+                </li>
+              </ul>
+              </div>
+              <a href="javascript:void(0);" style={{color:'#76b5c5', fontSize:'25px', fontWeight:'bold'}} onClick={() => setIsModalVisible(false)}>Close</a>
+            </div>        
+
+          </Modal>
+      
         )}
       </div>
     </div>
@@ -133,3 +164,12 @@ function NFTMint() {
 }
 
 export default Unbox;
+
+
+//<p className="mt-2 text-success">
+//            NFT Unboxed! Go on your garage to look at it!
+//          </p>
+
+//<div style={{backgroundColor:'#0B0F3F'}}>
+//                  <h3 style={{color: '#ffd738'}}>Your unboxed item!</h3>
+//                  <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${unboxedCID}`} className="rounded img-thumbnail" style={{height:'45%', width:'45%'}}/>
