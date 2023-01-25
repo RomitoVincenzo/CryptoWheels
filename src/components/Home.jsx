@@ -13,7 +13,7 @@ import { Nav, Navbar } from 'react-bootstrap';
 // Import car json template
 import data from '../../json/car.json';
 import * as Icon from 'react-bootstrap-icons';
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 
 const contractAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
@@ -83,6 +83,7 @@ function Home()
   const [address, setAddress] = useState();
   const [notAppliedNFTs, setNotAppliedNFTs] = useState([])
   const [appliedNFTs, setAppliedNFTs] = useState([])
+  const [loading, setLoading] = useState(false)
 
   // Effect needed in order to update the page when the car is minted (end of myCar:if-condition)
   useEffect(() => {
@@ -105,10 +106,12 @@ function Home()
 
   const myCar = async () => {
 
+    
     // Take the current user account
     const requestAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const account = requestAccounts[0];
     setAddress(account);
+
 
     // Get from the contract the current Car CID (in bytes32 format) of the user
     let carID = await contract.getCarID(account);
@@ -118,6 +121,7 @@ function Home()
 
     // Check if the user has not already minted is car
     if (carCIDb32 == 0) {
+      setLoading(true)
       //DO NOT ADD THE IMAGE AND THE METADATA BEFORE TRANSACTION IS COMPLETED (CRITICAL)
       console.log("IF");
 
@@ -156,6 +160,7 @@ function Home()
         ipfs.pin.rm(metadataURICar)
       }
 
+      setLoading(false)
       // Update the minted state
       const isMinted = await isCarMinted(account);
       setMinted(isMinted);
@@ -245,7 +250,6 @@ function Home()
       // Update the states
       setNotAppliedNFTs(notAppliedItems);
       setAppliedNFTs(appliedItems);
-
     }
   }
 
@@ -255,15 +259,7 @@ function Home()
       <div className="container">
         <div className="row align-items-center mt-5">
           <div className="col-lg-6 col-md-6 col-12 mt-5 text-center" style={{ height:"70%" }}>
-            <img src={logoCW} alt="" className='my-auto main-logo'  />
-            {/* <Player
-              autoplay
-              loop
-              src="https://assets3.lottiefiles.com/packages/lf20_6q3x8d8e.json"
-              style={{ height: '600px', width: '700px' }}
-              className='img-fluid'
-            >
-            </Player> */}
+            <img src={logoCW} alt="" className='my-auto main-logo' style={{animation: 'rotation 6s infinite linear'}}/>
           </div>
           <div className="col-lg-6 col-md-6 col-12 ">
             <h2 className="text-gold fw-bolder big-heading">
@@ -284,7 +280,13 @@ function Home()
               </NavLink>
             </div>
           )}
-            
+          {loading && (
+            <div>
+            <div className="spinner-border" role="status" style={{position: 'relative', fontSize: '25px', height: '40px', width: '40px', color: '#ffd738', marginLeft: '1%', marginTop: '2%'}}>
+            <span className="sr-only"></span>
+            </div>
+            </div>
+          )}
           </div>
         </div>
       </div>

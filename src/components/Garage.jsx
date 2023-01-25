@@ -98,6 +98,8 @@ function Garage() {
   const [address, setAddress] = useState();
   const [notAppliedNFTs, setNotAppliedNFTs] = useState([])
   const [appliedNFTs, setAppliedNFTs] = useState([])
+  const [mountLoading, setMountLoading] = useState(false)
+  const [removeLoading, setRemoveLoading] = useState(false)
 
   // Effect needed in order to update the page when the car is minted (end of myCar:if-condition)
   useEffect(() => {
@@ -311,6 +313,7 @@ function Garage() {
 
   const itemManagement = async (itemMetadataCID, operation = "apply") => {
 
+    if (operation == "remove") {setRemoveLoading(true)}
     if (operation == "apply") {
       // Transaction payment of the item application
       const result = await contractWithSigner.payToApplyItem({
@@ -319,6 +322,7 @@ function Garage() {
       });
       console.log(result)
       await result.wait();
+      setMountLoading(true)
     }
 
     // Take the input item metadata
@@ -451,6 +455,9 @@ function Garage() {
     });
     await transaction.wait();
 
+    if (operation == "remove") {setRemoveLoading(false)}
+    if (operation == "apply") {setMountLoading(false)}
+
     // Call myCar function to update states and graphic components
     await myCar();
 
@@ -523,35 +530,28 @@ function Garage() {
                                 <span className="badge bg-app text-white px-3 fs-6">{nft.minting_date}</span>
                               </li>
                             </ul>
-                            {/* <div className="row g-1">
-                              <div className="col-4">
-                                <span className='badge bg-app text-white px-3 py-2 rounded-pill col-12' data-bs-toggle="tooltip" title='Hello'>{nft.type}</span>
-                              </div>
-                              <div className="col-4">
-                                <span className='badge bg-success text-white px-3 rounded-pill py-2'>{nft.rarity}</span>
-                              </div>
-                              <div className="col-4">
-                                <span className='badge bg-success text-white px-3 rounded-pill py-2'>{nft.minting_date}</span>
-                              </div>
-                            </div> */}
-                              {/* <p className="text-2xl font-bold mb-0"> ID - {nft.id}</p>
-                              <p className="text-2xl font-bold mb-0"> Type - {nft.type}</p>
-                              <p className="text-2xl font-bold mb-0"> Rarity - {nft.rarity}</p>
-                              <p className="text-2xl font-bold mb-0"> Minter - {nft.minter}</p>
-                              <p className="text-2xl font-bold mb-0"> Minting Date - {nft.minting_date}</p> */}
-                              <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 btn btn-danger col-12" onClick={() => itemManagement(nft.metadata, "remove")}>
-                                Remove
-                              </button>
+                            <button className="mt-4 w-full bg-pink-500 text-white font-bold py-2 px-12 btn btn-danger col-12" onClick={() => itemManagement(nft.metadata, "remove")}>
+                              Remove
+                            </button>
                             </div>
                           </div>
                         ))
                       }
             </div>
-            </div>
+          </div>
           <div className="col-6 text-center">
             <h2 className='text-white bg-app p-2 col-heading fs-4'> Your Car</h2>
             <div className="box my-3">
-              <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${imageCID}`} alt="Immagine" className='img-fluid image-container' />
+              {!removeLoading && !mountLoading ? (
+                <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${imageCID}`} alt="Immagine" className='img-fluid image-container' />
+                ):(              
+                <>
+                  <div className="spinner-border" role="status" style={{position: 'relative', fontSize: '25px', height: '80px', width: '80px', marginTop: '5%'}}>
+                    <span className="sr-only"></span>
+                  </div>
+                  <p style={{marginTop: '5%', fontSize: '30px'}}>Generating your new car...</p>
+                </>
+              )}       
             </div>
           </div>
           <div className="col-3 ">
@@ -579,19 +579,18 @@ function Garage() {
                                 </li>
                               </ul>
                               <button className="btn btn-success col-12 mt-3" onClick={() => itemManagement(nft.metadata)}>
-                                Mount
+                              Mount
                               </button>
                               <button className="my-1 btn btn-primary col-12" onClick={() => showInputPopup(nft.metadata)}>
-                                Sell
-                              </button>
+                              Sell
+                              </button>      
                           </div>
                         </div>
                       ))
                     }
             </div>
           </div>
-        </div>
-       
+        </div>     
       </div>
           )}
       

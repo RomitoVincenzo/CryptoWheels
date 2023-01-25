@@ -113,7 +113,7 @@ body{
 }
 
 .side-cols{
-    height: 800px !important;
+    height: 830px !important;
     overflow-y: scroll;
 }
 
@@ -150,3 +150,11 @@ body{
     border-radius: 10px;
   }
 
+  @keyframes rotation {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(359deg);
+    }
+  }
