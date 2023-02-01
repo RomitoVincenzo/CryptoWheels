@@ -251,13 +251,13 @@ function Garage() {
       let myAppliedItems = []
       // For each item: if the item is applied on the car show its metadata, else "standard item" string
 
-      if (headlightsCID != "QmY7X743jRGJjbNsEmEh4pTT7W1avwWVF2c9QGGFn9kKnR") {
+      if (headlightsCID != "QmQ7aZ3RwkwQ8n5PHuxfvAQStUZDMqQMiaFptNJKq16SL8") {
         myAppliedItems.push(headlightsCID)
       }
       else {
         console.log("Standard headlights")
       }
-      if (spoilerCID != "QmPoXk21eugr3dTzynB437EyiwWtiDjAyaW3Mn7myk86zE") {
+      if (spoilerCID != "QmXCN9eFs1u9pyJ82bPc3CpnUhZu6HR8LerqMQNjLErPLe") {
         myAppliedItems.push(spoilerCID)
       }
       else {
