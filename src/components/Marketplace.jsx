@@ -34,6 +34,17 @@ export function convertBytes32ToBytes58(bytes32) {
   return result;
 }
 
+async function Uint8ArrayToJSON(Uint8Array) {
+  let decoder = new TextDecoder()
+  let data = ''
+  for await (const chunk of Uint8Array) {
+    data += decoder.decode(chunk, { stream: true })
+  }
+
+  return JSON.parse(data)
+}
+
+
 function Marketplace() {
 
   // States configuration
@@ -48,13 +59,20 @@ function Marketplace() {
 
   // Market Item construction from Market Item Object of the contract
   const listedNFTsMapping = async (i) => {
+
+    let itemCID = await contract.getItemCID(i.itemId)
+    let itemMetadataCID = ipfs.cat(convertBytes32ToBytes58(itemCID));
+    let json = await Uint8ArrayToJSON(itemMetadataCID);
+
     let item = {
       itemId: i.itemId.toNumber(),
       imageCID: convertBytes32ToBytes58(i.imageCID),
       seller: i.seller,
       owner: i.owner,
       price: i.price.toNumber(),
-      sold: i.sold
+      sold: i.sold,
+      type: json.type,
+      rarity: json.rarity
     }
     return item
   }
@@ -77,7 +95,6 @@ function Marketplace() {
     // otherwise to the general listedItems array 
 
     nfts.forEach(async (marketItem) => {
-      console.log(marketItem.seller.toLowerCase())
       if (marketItem.seller.toLowerCase() == account.toString()) {
         addressListedItems.push(marketItem)
       } else {
@@ -121,7 +138,7 @@ function Marketplace() {
     <div style={{background:"#F6F6F6"}}>
       <Navmenu></Navmenu>
       <div className="container py-5 vh-100">
-      <h1 className='fw-bold'> My Listed Items</h1>
+      <h1 className='text-center text-white bg-app p-2 col-heading fs-4'> My Listed Items </h1>
         <div className="row mt-4">
             {
               myListedNFTs.map((nft, i) => (
@@ -133,7 +150,8 @@ function Marketplace() {
                     <div className="py-3 overflow-hidden">
                       <div className="row">
                         <div className="col-6">
-                          <p className="fw-bolder fs-3 text-app"> ID # {nft.itemId}</p>
+                          <p className="fw-bolder"> Type: <br></br>  <span style={{color: '#BE9B25'}}>{nft.type}</span></p>
+                          <p className="fw-bolder"> Rarity: <br></br>  <span style={{color: '#BE9B25'}}>{nft.rarity}</span></p>
                         </div>
                         <div className="col-6">
                           <p className="fw-bold fst-italic fs-3 text-success text-end"> {nft.price} ETH</p>
@@ -150,8 +168,8 @@ function Marketplace() {
                 </div>
               ))
             }
-        </div>
-        <h1 className='fw-bold mt-4'> Marketplace Items</h1>
+        </div><br></br>
+        <h1 className='text-center text-white bg-app p-2 col-heading fs-4'> Marketplace Items </h1>
         <div className="row  mt-4">
               {
                 listedNFTs.map((nft, i) => (
@@ -163,7 +181,8 @@ function Marketplace() {
                     <div className="py-3 overflow-hidden">
                       <div className="row">
                         <div className="col-6">
-                          <p className="fw-bolder fs-3 text-app"> ID # {nft.itemId}</p>
+                          <p className="fw-bolder"> Type: <br></br>  <span style={{color: '#BE9B25'}}>{nft.type}</span></p>
+                          <p className="fw-bolder"> Rarity: <br></br>  <span style={{color: '#BE9B25'}}>{nft.rarity}</span></p>
                         </div>
                         <div className="col-6">
                           <p className="fw-bold fst-italic fs-3 text-success text-end"> {nft.price} ETH</p>

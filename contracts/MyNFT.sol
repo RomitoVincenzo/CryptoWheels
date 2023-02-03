@@ -63,10 +63,9 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         contractNonce = contractNonce + 1;
     }
 
-    /*function setCarID(address addr, uint256 carID) public {
-        require(msg.sender == contractOwner, "You cannot call this function!");
-        ownerToCar[addr] = carID;
-    }*/
+    function getItemCID(uint256 itemID) public view returns (bytes32) {
+        return itemToCID[itemID];
+    }
 
     function tokenURI(uint256 tokenId)
         public
@@ -87,11 +86,13 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         uint256 price,
         uint256 listingPrice //5% of the price
     ) public payable {
-        require(price > 0, "Price must be at least 1 wei");
+        require(price > 0, "Price must be greater than 0 ether");
         require(
             msg.value >= listingPrice,
             "Price must be equal to listing price"
         );
+        require(itemToOwner[itemId] == msg.sender, "You cannot call this function");
+
         idToMarketItem[itemId] = MarketItem(
             itemId,
             imageCID,
@@ -121,11 +122,6 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     }
 
     function removeMarketItem(uint256 itemId, address seller) public {
-        /*require(
-            idToMarketItem[itemId].seller == msg.sender,
-            "You are not the owner of the item"
-        );*/
-        require(msg.sender == contractOwner, "You cannot call this function!");
         require(
             idToMarketItem[itemId].seller == seller,
             "This is not the owner of the NFT"
@@ -141,7 +137,8 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         string memory metadataURI, //json cid
         bytes32 itemMetadataURIb32
     ) public payable returns (uint256) {
-        require(msg.value >= 0.05 ether, "Need to pay up!");
+        require(msg.value >= 0.1 ether, "Need to pay up!");
+        require(ownerToCar[recipient]!=0, "You've not minted your car!");
 
         _itemIdCounter.increment();
         uint256 newItemId = _itemIdCounter.current();
@@ -159,6 +156,7 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         bytes32 stockCarMetadataURIb32
     ) public payable returns (uint256) {
         require(msg.value >= 0.05 ether, "Need to pay up!");
+        require(ownerToCar[recipient]==0, "You've already minted your car!");
 
         _itemIdCounter.increment();
         uint256 newItemId = _itemIdCounter.current();
@@ -167,14 +165,12 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
         _setTokenURI(newItemId, stockCarMetadataURI);
         ownerToCar[recipient] = newItemId;
         carToCID[newItemId] = stockCarMetadataURIb32;
-        console.log(newItemId);
-        console.logBytes32(stockCarMetadataURIb32);
 
         return newItemId;
     }
 
     function payToApplyItem() public payable {
-        require(msg.value >= 0.05 ether, "Need to pay up!");
+        require(msg.value >= 0.01 ether, "Need to pay up!");
     }
 
     /* Returns all unsold market items */
@@ -213,9 +209,6 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
                 currentIndex += 1;
             }
         }
-        for (uint256 i = 0; i < itemCount; i++) {
-            console.log(items[i]);
-        }
         return items;
     }
 
@@ -235,7 +228,6 @@ contract CryptoWheels is ERC721, ERC721URIStorage {
     }
 
     function count() public view returns (uint256) {
-        //added by fireship
         return _itemIdCounter.current();
     }
 }

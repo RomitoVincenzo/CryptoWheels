@@ -79,7 +79,6 @@ async function isCarMinted(account) {
 import axios from 'axios';
 const fetchComposite = async (cidArray) => {
   try {
-    console.log(cidArray);
     axios.defaults.headers.post['Content-Type'] = 'application/json';
     // Send an HTTP POST Request to the backend with the CID Array as body
     let response = await axios.post('http://localhost:3001/create-composite', cidArray);
@@ -174,14 +173,11 @@ function Garage() {
 
     // Get from the contract the current Car CID (in bytes32 format) of the user
     let carID = await contract.getCarID(account);
-    console.log(carID)
     let carCIDb32 = await contract.getCarCID(carID);
-    console.log(carCIDb32)
 
     // Check if the user has not already minted is car
     if (carCIDb32 == 0) {
       //DO NOT ADD THE IMAGE AND THE METADATA BEFORE TRANSACTION IS COMPLETED (CRITICAL)
-      console.log("IF");
 
       // Take stock car metadata and create the JsonObject in order to modify it
       const loadedData = JSON.stringify(data);
@@ -200,7 +196,6 @@ function Garage() {
       let metadataURICar;
       await ipfs.add(Buffer.from(JSON.stringify(jsonObject))).then((response) => {
         metadataURICar = response.path;
-        console.log(metadataURICar);
       });
 
       // Convert the new metadata CID to bytes32 in order to be correctly stored in the blockchain mapping
@@ -224,22 +219,15 @@ function Garage() {
 
     } else {
 
-      console.log("ELSE")
-
       // Load metadata of the current user car
       let carCID = convertBytes32ToBytes58(carCIDb32);
       let metadataURICar = ipfs.cat(carCID);
 
       let jsonObject = await Uint8ArrayToJSON(metadataURICar);
 
-      console.log(jsonObject)
-
       // Take the image CID of the car 
       let carImageCID = jsonObject.ImageCID;
-      console.log(carImageCID);
       setImageCID(carImageCID);
-
-      console.log("The items you have on your car:");
 
       // Showing equipped items
       var headlightsCID = jsonObject.items.headlights;
@@ -254,51 +242,35 @@ function Garage() {
       if (headlightsCID != "QmQ7aZ3RwkwQ8n5PHuxfvAQStUZDMqQMiaFptNJKq16SL8") {
         myAppliedItems.push(headlightsCID)
       }
-      else {
-        console.log("Standard headlights")
-      }
+
       if (spoilerCID != "QmXCN9eFs1u9pyJ82bPc3CpnUhZu6HR8LerqMQNjLErPLe") {
         myAppliedItems.push(spoilerCID)
       }
-      else {
-        console.log("Standard spoiler")
-      }
+
       if (rimCID != "") {
         myAppliedItems.push(rimCID);
       }
-      else {
-        console.log("Standard rim")
-      }
+
       if (wrapCID != "") {
         myAppliedItems.push(wrapCID);
       }
-      else {
-        console.log("Standard wrap")
-      }
+
       if (tinted_windowsCID != "") {
         myAppliedItems.push(tinted_windowsCID);
-      }
-      else {
-        console.log("No tinted windows")
       }
 
       // Get metadata CIDs of the user's items
       let CIDs = await contract.getMyItemsCIDs(account)
       CIDs = CIDs.map(cid => convertBytes32ToBytes58(cid))
 
-      console.log(CIDs);
       // Create the arrays of the metadata CIDs of applied and not applied items
       let myNotAppliedItems = [];
       for (let i = 0; i < CIDs.length; i++) {
         let notAppliedCID = CIDs[i]
-        console.log(notAppliedCID)
-        console.log(myAppliedItems)
         if (!myAppliedItems.includes(notAppliedCID)) {
           myNotAppliedItems.push(notAppliedCID);
         }
       }
-      console.log(myAppliedItems)
-      console.log(myNotAppliedItems)
 
       // Define item parameters object from metadata 
       const notAppliedItems = await Promise.all(myNotAppliedItems.map(cid => itemMapping(cid)))
@@ -318,9 +290,8 @@ function Garage() {
       // Transaction payment of the item application
       const result = await contractWithSigner.payToApplyItem({
         from: address,
-        value: ethers.utils.parseEther('0.05'),
+        value: ethers.utils.parseEther('0.01'),
       });
-      console.log(result)
       await result.wait();
       setMountLoading(true)
     }
@@ -336,11 +307,8 @@ function Garage() {
     let carCIDb32 = await contract.getCarCID(carID);
 
     let carCID = convertBytes32ToBytes58(carCIDb32);
-    console.log(carCID);
     let metadataURICar = ipfs.cat(carCID);
-    console.log(metadataURICar);
     let jsonObjectCar = await Uint8ArrayToJSON(metadataURICar);
-    console.log(jsonObjectCar);
     const loadedDataDefaultCar = JSON.stringify(data);
     const jsonObjectDefaultCar = JSON.parse(loadedDataDefaultCar);
 
@@ -362,11 +330,6 @@ function Garage() {
     var tinted_windowsCID = jsonObjectCar.items.tinted_windows;
 
     // If an item is applied, push its image CID in the listItemsImageCIDs array
-    console.log(headlightsCID);
-    console.log(spoilerCID);
-    console.log(rimCID);
-    console.log(wrapCID);
-    console.log(tinted_windowsCID);
 
     let listItemsImageCIDs = [];
 
@@ -400,8 +363,6 @@ function Garage() {
       listItemsImageCIDs.push(json.imageCID)
     }
 
-    console.log(listItemsImageCIDs);
-
     // Merge of the image - Pass the image CIDs array to the fetchComposite function 
     // (it will call the CryptoWheels-ImageComposition BE) 
 
@@ -412,7 +373,6 @@ function Garage() {
     let mergedImageCID;
     await ipfs.add(Buffer.from(imageBase64, 'base64')).then((response) => {
       mergedImageCID = response.path;
-      console.log(mergedImageCID);
     });
 
     // Unpin of old image from IPFS, except for stock car image CID 
@@ -428,7 +388,6 @@ function Garage() {
     let mergedCarMetadataCID;
     await ipfs.add(Buffer.from(JSON.stringify(jsonObjectCar))).then((response) => {
       mergedCarMetadataCID = response.path;
-      console.log(mergedCarMetadataCID);
     });
 
     // Unpin of old metadata CID of the car from IPFS
@@ -473,7 +432,6 @@ function Garage() {
 
     // Compute the listing price from price (5%)
     let listingPrice = price * 5 / 100;
-    console.log(listingPrice.toFixed(0));
 
     // Call the createMarketItem function of the contract with (id, price, listingprice)
     const createMarketItem = await contractWithSigner.createMarketItem(itemId, hashToBytes32(itemImageCID), price, Number(listingPrice.toFixed(0)), {
@@ -481,11 +439,9 @@ function Garage() {
       value: ethers.utils.parseEther(listingPrice.toFixed(0)),
     });
     await createMarketItem.wait();
-    console.log(createMarketItem)
 
     //fetchMarketItems
     const fetchMarketItem = await contractWithSigner.fetchMarketItems()
-    console.log(fetchMarketItem);
 
     // Show alert "Item correctly listed!"
     //alert('Item correctly listed!')
@@ -543,7 +499,7 @@ function Garage() {
             <h2 className='text-white bg-app p-2 col-heading fs-4'> Your Car</h2>
             <div className="box my-3">
               {!removeLoading && !mountLoading ? (
-                <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${imageCID}`} alt="Immagine" className='img-fluid image-container' />
+                <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${imageCID}`} salt="Immagine" className='img-fluid car' />
                 ):(              
                 <>
                   <div className="spinner-border" role="status" style={{position: 'relative', fontSize: '25px', height: '80px', width: '80px', marginTop: '5%'}}>

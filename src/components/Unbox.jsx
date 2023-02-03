@@ -77,7 +77,6 @@ function NFTMint() {
 
       //const loadedData = JSON.stringify(unbox_item());
       const loadedData = JSON.stringify(await fetchUnboxedItem());
-      console.log(loadedData);
       const jsonObject = JSON.parse(loadedData);
 
       // modify variable parameters of the json (minter, date, id)
@@ -90,27 +89,24 @@ function NFTMint() {
 
       // upload of the json to ipfs and get of the hash
       await ipfs.add(Buffer.from(JSON.stringify(jsonObject))).then((response) => {
-        //console.log(response.path); // Stampa l'hash del file caricato su IPFS
         metadataURI = response.path;
       });
       const result = await contract.payToMint(addr, metadataURI, hashToBytes32(metadataURI), {
-        value: ethers.utils.parseEther('0.05'),
+        value: ethers.utils.parseEther('0.1'),
       });
 
       await result.wait();
-      //console.log(result);
-      console.log(jsonObject)
 
       setUnboxedCID(jsonObject.imageCID)
       setUnboxedType(jsonObject.type)
       setUnboxedRarity(jsonObject.rarity)
       setSuccess(true);
       setIsModalVisible(true)
+
     } catch (error) {
       console.error(error);
       setSuccess(false);
       const cid = ipfs.pin.rm(metadataURI);
-      console.log(cid);
     } finally {
       setLoading(false);
     }
@@ -134,7 +130,7 @@ function NFTMint() {
         )}
         {success && (
           
-          <Modal visible={isModalVisible} width="400" height="550" effect="fadeInUp" onClickAway={() => setIsModalVisible(false)}>
+          <Modal visible={isModalVisible} width="400" height="460" effect="fadeInUp" onClickAway={() => setIsModalVisible(false)}>
               
             <div className="box">
               <div className="text-center">
@@ -164,12 +160,3 @@ function NFTMint() {
 }
 
 export default Unbox;
-
-
-//<p className="mt-2 text-success">
-//            NFT Unboxed! Go on your garage to look at it!
-//          </p>
-
-//<div style={{backgroundColor:'#0B0F3F'}}>
-//                  <h3 style={{color: '#ffd738'}}>Your unboxed item!</h3>
-//                  <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${unboxedCID}`} className="rounded img-thumbnail" style={{height:'45%', width:'45%'}}/>

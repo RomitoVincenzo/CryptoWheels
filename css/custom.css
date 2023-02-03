@@ -103,6 +103,11 @@ body{
     background: white !important;
 }
 
+.car {
+    height: 512px;
+    width: 683px;
+}
+
 .image-container{
     height: 550px !important;
 }
