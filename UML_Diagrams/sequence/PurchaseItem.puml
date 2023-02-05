@@ -1,0 +1,27 @@
+@startuml PurchaseItemFromMarketplace
+
+actor User
+participant "Browser: Marketplace"
+participant Web3
+participant "Smart Contract"
+actor Seller
+
+User -> "Browser: Marketplace": Click "Purchase" btn \n{purchaseItem(itemID, price)}
+"Browser: Marketplace" -> Web3: purchaseMarketItem(itemID) ({value: price}) 
+Web3 -> "Smart Contract": purchaseMarketItem(itemID) ({value: price}) 
+
+alt successfull transaction
+
+    "Smart Contract" -> "Smart Contract": _transfer(contractOwner, msg.sender, itemId);
+    "Smart Contract" -> Seller: payable(seller).transfer(msg.value);
+    "Smart Contract" --> Web3: Transaction Succeeded
+    Web3 --> "Browser: Marketplace": Transaction Succeeded 
+    "Browser: Marketplace" --> User: Update Marketplace (item deleted)\n Update myGarage (add new item)
+
+else failed transaction
+    "Smart Contract" --> Web3: error
+    Web3 --> "Browser: Marketplace": error
+    "Browser: Marketplace" --> User: error
+    end 
+
+@enduml

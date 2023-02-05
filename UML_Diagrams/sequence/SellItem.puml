@@ -1,0 +1,32 @@
+@startuml SellItem
+
+actor User
+participant "Browser: Garage"
+participant Web3
+participant IPFS
+participant "Smart Contract"
+
+User -> "Browser: Garage": Click "Sell" btn \n{showInputPopup(nftMetadataCID)}
+"Browser: Garage" --> User: Prompt with price input box
+User -> "Browser: Garage": Insert Price and Confirm \n{sellItem(nftMetadataCID, price)}
+"Browser: Garage" -> IPFS: ipfs.cat(nftMetadataCID)
+IPFS --> "Browser: Garage": JSON - nftMetadata
+"Browser: Garage" -> "Browser: Garage": Compute the listing price (5% of price)
+"Browser: Garage" -> Web3: createMarketItem(itemID, itemImageCID, price, listingPrice) 
+Web3 -> "Smart Contract": createMarketItem(itemID, itemImageCID, price, listingPrice)
+
+alt successfull transaction
+
+    "Smart Contract" -> "Smart Contract": create MarketItem(itemID, imageCID, seller, contract, price, soldBool) 
+    "Smart Contract" -> "Smart Contract": _transfer(msg.sender, contractOwner, itemId);
+    "Smart Contract" --> Web3: Transaction Succeeded
+    Web3 --> "Browser: Garage": Transaction Succeeded 
+    "Browser: Garage" --> User: Alert - "Item correctly listed"
+
+else failed transaction
+    "Smart Contract" --> Web3: error
+    Web3 --> "Browser: Garage": error
+    "Browser: Garage" --> User: Alert - "Error in listing!"
+    end 
+
+@enduml

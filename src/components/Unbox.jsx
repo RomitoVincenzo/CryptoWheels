@@ -106,7 +106,7 @@ function NFTMint() {
     } catch (error) {
       console.error(error);
       setSuccess(false);
-      const cid = ipfs.pin.rm(metadataURI);
+      ipfs.pin.rm(metadataURI);
     } finally {
       setLoading(false);
     }
@@ -125,7 +125,7 @@ function NFTMint() {
           </>
         ) : (
           <button className="btn btn-primary w-100" onClick={mintToken}>
-            MINT
+            UNBOX
           </button>
         )}
         {success && (

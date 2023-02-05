@@ -1,0 +1,27 @@
+@startuml RemoveItemFromMarketplace
+
+actor User
+participant "Browser: Marketplace"
+participant Web3
+participant "Smart Contract"
+
+User -> "Browser: Marketplace": Click "Remove" btn \n{removeItem(itemID)}
+"Smart Contract" --> Web3: currentContractNonce
+Web3 --> "Browser: Garage": currentContractNonce
+"Browser: Garage" -> Web3: removeMarketItem(itemID, address) {from: contract, nonce: currentContractNonce}
+Web3 -> "Smart Contract": removeMarketItem(itemID, address) {from: contract, nonce: currentContractNonce}
+
+alt successfull transaction
+
+    "Smart Contract" -> "Smart Contract": _transfer(contractOwner, address, itemId);
+    "Smart Contract" --> Web3: Transaction Succeeded
+    Web3 --> "Browser: Marketplace": Transaction Succeeded 
+    "Browser: Marketplace" --> User: Update MyListedItems (item deleted)\n Update myGarage (get back item)
+
+else failed transaction
+    "Smart Contract" --> Web3: error
+    Web3 --> "Browser: Marketplace": error
+    "Browser: Marketplace" --> User: error
+    end 
+
+@enduml

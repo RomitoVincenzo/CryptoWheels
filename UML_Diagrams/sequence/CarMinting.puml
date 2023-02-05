@@ -1,0 +1,38 @@
+@startuml CarMinting
+
+actor User
+participant "Browser: Home"
+participant Web3
+participant IPFS
+participant "Smart Contract"
+
+User -> "Browser: Home": Click "Get Your Car Now" btn \n              {myCar()}
+"Browser: Home" -> Web3: getCarID(account)
+Web3 -> "Smart Contract": getCarCID(carID)
+"Smart Contract" --> Web3: default value (0)
+Web3 --> "Browser: Home": default value (0)
+"Browser: Home" -> Web3: getNextItemID()
+Web3 -> "Smart Contract": getNextItemID()
+"Smart Contract" --> Web3: next item id
+Web3 --> "Browser: Home": next item id
+"Browser: Home" -> IPFS: ipfs.add(carMetadata)
+IPFS --> "Browser: Home": CID - metadataURICar
+"Browser: Home" -> Web3: payToMintCar(account, metadataURICar, metadataURICar_b32)
+Web3 -> "Smart Contract": payToMintCar(account, metadataURICar, metadataURICar_b32)
+alt successfull transaction
+
+    "Smart Contract" -> "Smart Contract": _mint(recipient, newItemId)
+    "Smart Contract" --> Web3: Transaction Succeeded
+    Web3 --> "Browser: Home": Transaction Succeeded 
+    "Browser: Home" --> User: Show Garage link btn
+
+else failed transaction
+
+    "Smart Contract" --> Web3: error
+    Web3 --> "Browser: Home": error
+    "Browser: Home" --> User: error
+    "Browser: Home" -> IPFS: ipfs.pin.rm(metadataURICar)
+    IPFS --> "Browser: Home": operation status code
+    end 
+
+@enduml

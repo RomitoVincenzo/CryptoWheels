@@ -120,12 +120,7 @@ function Garage() {
   }, [minted]);
 
   async function showInputPopup(nftMetadata) {
-    //let price = prompt("Please enter the price:", "");
-    //if (price == null || price == "") {
-    //  alert('You have to insert a valid price value!')
-    //} else {
-    //  await sellItem(nftMetadata, price);
-    //}
+
     let itemMetadataURI = ipfs.cat(nftMetadata);
     let jsonObjectItem = await Uint8ArrayToJSON(itemMetadataURI);
 
@@ -287,13 +282,17 @@ function Garage() {
 
     if (operation == "remove") {setRemoveLoading(true)}
     if (operation == "apply") {
-      // Transaction payment of the item application
-      const result = await contractWithSigner.payToApplyItem({
-        from: address,
-        value: ethers.utils.parseEther('0.01'),
-      });
-      await result.wait();
-      setMountLoading(true)
+      try {
+        // Transaction payment of the item application
+        const result = await contractWithSigner.payToApplyItem({
+          from: address,
+          value: ethers.utils.parseEther('0.01'),
+        });
+        await result.wait();
+        setMountLoading(true)
+      } catch (error) {
+        return;
+      }
     }
 
     // Take the input item metadata
@@ -409,10 +408,14 @@ function Garage() {
     let currentContractNonce = contractToContract.getContractNonce()
 
     // Call the setCarCID updating function of the contract
-    let transaction = await contractToContract.setCarCID(jsonObjectCar.id, hashToBytes32(mergedCarMetadataCID), {
-      nonce: currentContractNonce
-    });
-    await transaction.wait();
+    try {
+      let transaction = await contractToContract.setCarCID(jsonObjectCar.id, hashToBytes32(mergedCarMetadataCID), {
+        nonce: currentContractNonce
+      });
+      await transaction.wait();
+    } catch(error) {
+      return;
+    }
 
     if (operation == "remove") {setRemoveLoading(false)}
     if (operation == "apply") {setMountLoading(false)}
@@ -433,13 +436,17 @@ function Garage() {
     // Compute the listing price from price (5%)
     let listingPrice = price * 5 / 100;
 
-    // Call the createMarketItem function of the contract with (id, price, listingprice)
-    const createMarketItem = await contractWithSigner.createMarketItem(itemId, hashToBytes32(itemImageCID), price, Number(listingPrice.toFixed(0)), {
-      from: address,
-      value: ethers.utils.parseEther(listingPrice.toFixed(0)),
-    });
-    await createMarketItem.wait();
-
+    try {
+      // Call the createMarketItem function of the contract with (id, price, listingprice)
+      const createMarketItem = await contractWithSigner.createMarketItem(itemId, hashToBytes32(itemImageCID), price, Number(listingPrice.toFixed(0)), {
+        from: address,
+        value: ethers.utils.parseEther(listingPrice.toFixed(0)),
+      });
+      await createMarketItem.wait();
+    } catch(error) {
+      await PurePopup.alert({ title: 'Error in listing!' });
+      return;
+    }
     //fetchMarketItems
     const fetchMarketItem = await contractWithSigner.fetchMarketItems()
 
