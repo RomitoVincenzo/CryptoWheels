@@ -39,7 +39,7 @@ const fetchUnboxedItem = async () => {
 
 function Unbox() {
   return (
-    <div style={{background:"#FCFCFC"}} className="">
+    <div style={{ background: "#FCFCFC" }} className="">
       <WalletBalance />
       <h1 style={{ textAlign: "center" }} className="my-4">UNBOX YOUR CAR ITEM</h1>
       <div className="container" style={{ display: "flex", justifyContent: "center" }}>
@@ -114,7 +114,7 @@ function NFTMint() {
 
   return (
     <div className="card box p-3" style={{ width: '18rem' }}>
-      <img className="card-img-top" src={'img/mint.PNG'}></img>
+      <img className="card-img-top" src={'img/mint.png'}></img>
       <div className="card-body text-center">
         {loading ? (
           <>
@@ -129,30 +129,30 @@ function NFTMint() {
           </button>
         )}
         {success && (
-          
+
           <Modal visible={isModalVisible} width="400" height="460" effect="fadeInUp" onClickAway={() => setIsModalVisible(false)}>
-              
+
             <div className="box">
               <div className="text-center">
-              <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${unboxedCID}`} className="rounded img-thumbnail" />
+                <img src={`https://crypto-wheels.infura-ipfs.io/ipfs/${unboxedCID}`} className="rounded img-thumbnail" />
               </div>
               <div className="py-3 overflow-hidden">
-              <ul className="list-group">
-                <li className="list-group-item d-flex justify-content-between align-items-center">
-                  Type
-                  <span className="badge bg-app text-white px-3 fs-6">{unboxedType}</span>
-                </li>
-                <li className="list-group-item d-flex justify-content-between align-items-center">
-                  Rarity
-                  <span className="badge bg-app text-white px-3 fs-6">{unboxedRarity}</span>
-                </li>
-              </ul>
+                <ul className="list-group">
+                  <li className="list-group-item d-flex justify-content-between align-items-center">
+                    Type
+                    <span className="badge bg-app text-white px-3 fs-6">{unboxedType}</span>
+                  </li>
+                  <li className="list-group-item d-flex justify-content-between align-items-center">
+                    Rarity
+                    <span className="badge bg-app text-white px-3 fs-6">{unboxedRarity}</span>
+                  </li>
+                </ul>
               </div>
-              <a href="javascript:void(0);" style={{color:'#76b5c5', fontSize:'25px', fontWeight:'bold'}} onClick={() => setIsModalVisible(false)}>Close</a>
-            </div>        
+              <a href="javascript:void(0);" style={{ color: '#76b5c5', fontSize: '25px', fontWeight: 'bold' }} onClick={() => setIsModalVisible(false)}>Close</a>
+            </div>
 
           </Modal>
-      
+
         )}
       </div>
     </div>
