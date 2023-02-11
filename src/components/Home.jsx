@@ -115,15 +115,12 @@ function Home()
 
     // Get from the contract the current Car CID (in bytes32 format) of the user
     let carID = await contract.getCarID(account);
-    console.log(carID)
     let carCIDb32 = await contract.getCarCID(carID);
-    console.log(carCIDb32)
 
     // Check if the user has not already minted is car
     if (carCIDb32 == 0) {
       setLoading(true)
       //DO NOT ADD THE IMAGE AND THE METADATA BEFORE TRANSACTION IS COMPLETED (CRITICAL)
-      console.log("IF");
 
       // Take stock car metadata and create the JsonObject in order to modify it
       const loadedData = JSON.stringify(data);
@@ -142,7 +139,6 @@ function Home()
       let metadataURICar;
       await ipfs.add(Buffer.from(JSON.stringify(jsonObject))).then((response) => {
         metadataURICar = response.path;
-        console.log(metadataURICar);
       });
 
       // Convert the new metadata CID to bytes32 in order to be correctly stored in the blockchain mapping
@@ -167,7 +163,6 @@ function Home()
 
     } else {
 
-      console.log("ELSE")
 
       // Load metadata of the current user car
       let carCID = convertBytes32ToBytes58(carCIDb32);
@@ -175,14 +170,10 @@ function Home()
 
       let jsonObject = await Uint8ArrayToJSON(metadataURICar);
 
-      console.log(jsonObject)
 
       // Take the image CID of the car 
       let carImageCID = jsonObject.ImageCID;
-      console.log(carImageCID);
       setImageCID(carImageCID);
-
-      console.log("The items you have on your car:");
 
       // Showing equipped items
       var headlightsCID = jsonObject.items.headlights;
@@ -198,50 +189,40 @@ function Home()
         myAppliedItems.push(headlightsCID)
       }
       else {
-        console.log("Standard headlights")
       }
       if (spoilerCID != "QmXCN9eFs1u9pyJ82bPc3CpnUhZu6HR8LerqMQNjLErPLe") {
         myAppliedItems.push(spoilerCID)
       }
       else {
-        console.log("Standard spoiler")
       }
       if (rimCID != "") {
         myAppliedItems.push(rimCID);
       }
       else {
-        console.log("Standard rim")
       }
       if (wrapCID != "") {
         myAppliedItems.push(wrapCID);
       }
       else {
-        console.log("Standard wrap")
       }
       if (tinted_windowsCID != "") {
         myAppliedItems.push(tinted_windowsCID);
       }
       else {
-        console.log("No tinted windows")
       }
 
       // Get metadata CIDs of the user's items
       let CIDs = await contract.getMyItemsCIDs(account)
       CIDs = CIDs.map(cid => convertBytes32ToBytes58(cid))
 
-      console.log(CIDs);
       // Create the arrays of the metadata CIDs of applied and not applied items
       let myNotAppliedItems = [];
       for (let i = 0; i < CIDs.length; i++) {
         let notAppliedCID = CIDs[i]
-        console.log(notAppliedCID)
-        console.log(myAppliedItems)
         if (!myAppliedItems.includes(notAppliedCID)) {
           myNotAppliedItems.push(notAppliedCID);
         }
       }
-      console.log(myAppliedItems)
-      console.log(myNotAppliedItems)
 
       // Define item parameters object from metadata 
       const notAppliedItems = await Promise.all(myNotAppliedItems.map(cid => itemMapping(cid)))
