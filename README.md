@@ -26,3 +26,5 @@ npm run dev
 ```
 
 Update the deployed contract address in `compoonents/Home.js` 
+
+![alt text](https://github.com/RomitoVincenzo/CryptoWheels/blob/main/img/car_default.png?raw=true)
